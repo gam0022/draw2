@@ -1,0 +1,22 @@
+stages:
+  - fs: "./shaders/pattern.glsl"
+    target: "pattern"
+
+  - fs: "./shaders/raymarching.glsl"
+    target: "raymarching"
+
+  - fs: "./shaders/composite.glsl"
+    target: "composite"
+  
+  - fs: "./shaders/posteffect.glsl"
+
+midi_devices:
+  - "loopMIDI"
+  - "nanoKONTROL2"
+
+audio:
+  audio_samples: 8192
+  spectrum:
+    mipmap: true
+    filter: linear
+    wrap_mode: repeat
