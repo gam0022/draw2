@@ -73,8 +73,8 @@ float fbm(vec2 uv) {
 #define gVignetteRoundness 1.
 
 #define gTonemapExposure 1
-#define gFlash 0
-#define gFlashSpeed 60
+#define gFlash slider_flash
+#define gFlashSpeed 30
 
 #define gGlitchIntensity 0
 #define gXSfhitGlitch 0
@@ -159,7 +159,10 @@ void main() {
     col = invert(col, uv);
     col = flash(col);
     // col = blend(col);
-    // col = invertPattern(col, uv);
+
+    if (mod(beat, 2) < 1) col = invertPattern(col, uv);
+
+    // col +=
 
     outColor = vec4(col, 1);
 }

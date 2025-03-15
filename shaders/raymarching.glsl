@@ -33,60 +33,29 @@ float sdN(vec3 p, float z) {
 vec4 map(vec3 pos) {
     vec4 m = vec4(1);
 
-    if (scene == 0) {
-        vec3 p = pos;
-        rot(p.xz, beatTau / 8);
-        U(m, sdN(p, 0.1), SOL, 10, 1);
-    } else if (scene == 1) {
-        vec3 p = pos;
-        float a = 2;
-        rot(p.xz, beatTau / 32);
-        p -= 0.5 * a;
-        p = mod(p, a) - 0.5 * a;
-        rot(p.xz, beatTau / 8);
-        U(m, sdN(p, 0.1), SOL, 10, 1);
-    } else if (scene == 2) {
-        vec3 p = pos;
-        float a = 4;
-
-        // rot(p.xz, beatTau / 32);
-        p -= 0.5 * a;
-        vec3 grid = floor(p / a);
-        p = mod(p, a) - 0.5 * a;
-        pmod(p.xy, 8);
-        rot(p.xz, beatTau / 8 + dot(vec3(10.2), grid));
-        p.y -= 1.1 + 0.7 * cos(beatTau / 32);
-
-        float e = saturate(cos(beatTau / 2 + TAU * pos.z / 16));
-        if (e > 0.5) {
-            U(m, sdN(p, 0.1), VOL, 10 * e, 0);
-        } else {
-            U(m, sdN(p, 0.1), SOL, 20, fract(dot(grid, vec3(0.2))));
-        }
-    } else {
-        vec3 p = pos;
-        float a = 2;
-        vec3 of = vec3(0.32, 0, 0);
-        float s = 1;
-        // rot(p.xy, pos.z * 0.2);
-        // p.y -= cos(p.z * TAU / 8) * 0.5;
-        p = mod(p, a) - 0.5 * a;
-        p -= of;
-        for (int i = 0; i < 3; i++) {
-            p = abs(p + of) - of;
-            U(m, sdN(p * 2, 0.01) / 2, VOL, 1, 0.4);
-            rot(p.xz, TAU * 0.8);
-            rot(p.zy, TAU * 0.2 + beatPhase + pos.z * 0.1);
-        }
-
-        float scale = 1.05;
-        s *= scale;
-        p *= scale;
-
-        float e = saturate(cos(beatTau + TAU * pos.z / 16));
-        U(m, sdN(p, 0.02) / s, VOL, 4 * e, 0 * fract(pos.z / 8));
-        U(m, sdN(p, 0.1) / s, SOL, 1, 10);
+    vec3 p = pos;
+    float a = 2;
+    vec3 of = vec3(0.32, 0, 0);
+    float s = 1;
+    rot(p.xy, pos.z * 0.2);
+    p.y -= cos(p.z * TAU / 8) * 0.5;
+    p = mod(p, a) - 0.5 * a;
+    p -= of;
+    for (int i = 0; i < 3; i++) {
+        p = abs(p + of) - of;
+        U(m, sdN(p * 2, 0.01) / 2, VOL, 1, 0.4);
+        rot(p.xz, TAU * 0.8 + (floor(beat)));
+        rot(p.zy, TAU * 0.2 + beatPhase + pos.z * 0.1);
     }
+
+    float scale = 1.05;
+    s *= scale;
+    p *= scale;
+
+    float e = saturate(cos(beatTau + TAU * pos.z / 16));
+    U(m, sdN(p, 0.02) / s, VOL, 4 * e, 0 * fract(pos.z / 8));
+    U(m, sdN(p, 0.1) / s, SOL, 1, 10);
+
     return m;
 }
 
@@ -126,9 +95,8 @@ void main() {
     scene = floor(mod(beat, len * 4) / len);
 
     vec3 ro = vec3(0, 0, -1);
-    if (scene >= 2) ro = vec3(0, 0, beat);
-    float fl = 1;
-    if (scene <= 1) fl = 0.7;
+    ro = vec3(0, 0, beat);
+    float fl = 1 + 1 * mod(floor(beat), 2);
     vec3 rd = vec3(uv, fl);
     rd = normalize(rd);
     // rot(rd.xz, beatTau / 8);
