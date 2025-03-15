@@ -141,6 +141,10 @@ vec3 PBRNeutralToneMapping(vec3 color) {
     return mix(color, newPeak * vec3(1, 1, 1), g);
 }
 
+vec3 invertPattern(vec3 col, vec2 uv) {
+    return mix(col, saturate(1 - col), texture(pattern, uv).r);
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
@@ -155,6 +159,7 @@ void main() {
     col = invert(col, uv);
     col = flash(col);
     // col = blend(col);
+    // col = invertPattern(col, uv);
 
     outColor = vec4(col, 1);
 }

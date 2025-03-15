@@ -33,6 +33,7 @@ float scene;
 
 // sliders
 #define slider_motion_blur sliders[0]
+#define slider_raymarching sliders[1]
 
 // Hash without Sine by David Hoskins.
 // https://www.shadertoy.com/view/4djSRW

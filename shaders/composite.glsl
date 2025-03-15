@@ -8,8 +8,7 @@ void main() {
     vec4 patternCol = texture(pattern, uv);
     vec4 raymarchingCol = texture(raymarching, uv);
 
-    vec3 col = mix(patternCol.rgb, raymarchingCol.rgb, uv.x > 0.5 ? 0.0 : 1.0);
-    col = patternCol.rgb;
+    vec3 col = mix(patternCol.rgb, raymarchingCol.rgb, slider_raymarching);
 
     outColor = vec4(col, 1);
 }
