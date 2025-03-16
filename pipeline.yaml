@@ -5,9 +5,13 @@ stages:
   - fs: "./shaders/raymarching.glsl"
     target: "raymarching"
 
+  - fs: "./shaders/transcendental_cube.glsl"
+    resolution: [1280, 720]
+    target: "transcendental_cube"
+
   - fs: "./shaders/composite.glsl"
     target: "composite"
-  
+
   - fs: "./shaders/posteffect.glsl"
 
 midi_devices:

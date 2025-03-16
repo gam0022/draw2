@@ -4,13 +4,12 @@ out vec4 outColor;
 
 uniform sampler2D pattern;
 uniform sampler2D raymarching;
+uniform sampler2D transcendental_cube;
 uniform sampler2D composite;
 
 #define PI acos(-1)
 #define TAU (2. * PI)
 #define saturate(x) clamp(x, 0, 1)
-#define VOL 0.0
-#define SOL 1.0
 #define phase(x) (floor(x) + .5 + .5 * cos(TAU * .5 * exp(-5. * fract(x))))
 
 float bpm, beat, beatTau, beatPhase;

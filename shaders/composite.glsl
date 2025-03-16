@@ -10,5 +10,7 @@ void main() {
 
     vec3 col = mix(patternCol.rgb, raymarchingCol.rgb, slider_raymarching);
 
+    col = texture(transcendental_cube, uv).rgb;
+
     outColor = vec4(col, 1);
 }

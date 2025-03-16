@@ -2,6 +2,9 @@
 
 #pragma include "./shaders/common.glsl"
 
+#define VOL 0.0
+#define SOL 1.0
+
 vec4 map(vec3 p);
 
 vec3 normal(vec3 p) {
