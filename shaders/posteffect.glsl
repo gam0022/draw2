@@ -43,7 +43,7 @@ vec2 grid(int x, int y) { return fontSize.xx * vec2(1, ceil(fontSize.y / fontSiz
 
 // https://www.shadertoy.com/view/lsf3WH
 // Noise - value - 2D by iq
-float noise(vec2 p) {
+float noise2d(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
     vec2 u = f * f * (3.0 - 2.0 * f);
@@ -53,13 +53,13 @@ float noise(vec2 p) {
 float fbm(vec2 uv) {
     float f = 0.0;
     mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
-    f = 0.5000 * noise(uv);
+    f = 0.5000 * noise2d(uv);
     uv = m * uv;
-    f += 0.2500 * noise(uv);
+    f += 0.2500 * noise2d(uv);
     uv = m * uv;
-    f += 0.1250 * noise(uv);
+    f += 0.1250 * noise2d(uv);
     uv = m * uv;
-    f += 0.0625 * noise(uv);
+    f += 0.0625 * noise2d(uv);
     uv = m * uv;
     return f;
 }
@@ -152,17 +152,16 @@ void main() {
 
     // vec3 col = texture(composite, uv).rgb;
     vec3 col = chromaticAberration(uv);
-    col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(24, 3), fontSize, bpm, 1.0, 3.0));
+    col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(4, 3), fontSize,bpm, 1.0, 3.0));
+    col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(24, 3), fontSize, buttons[0].x, 1.0, 3.0));
 
-    col = PBRNeutralToneMapping(col * gTonemapExposure);
-    col *= vignette(uv);
+    // col = PBRNeutralToneMapping(col * gTonemapExposure);
+    // col *= vignette(uv);
     col = invert(col, uv);
     col = flash(col);
     // col = blend(col);
 
-    if (mod(beat, 2) < 1) col = invertPattern(col, uv);
-
-    // col +=
+    // if (mod(beat, 2) < 1) col = invertPattern(col, uv);
 
     outColor = vec4(col, 1);
 }

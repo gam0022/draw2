@@ -1,8 +1,6 @@
 out vec4 outColor;
 
-uniform vec4 resolution;
-uniform float sliders[32];
-uniform float time;
+#pragma include "./shaders/uniforms.glsl"
 
 uniform sampler2D pattern;
 uniform sampler2D raymarching;

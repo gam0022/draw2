@@ -53,7 +53,7 @@ void main() {
         col += sdBox(p, vec2(0.45 * d)) < 0.0 ? pal(fract(beat * 2)) * d : vec3(0.0);
     }
 
-    col += saturate(cos(beat * TAU));
+    // col += saturate(cos(beat * TAU));
 
     outColor = vec4(col, 1);
 }
