@@ -21,6 +21,11 @@ float fov;
 vec3 scol;
 vec3 boxPos;
 
+// mode
+int mode = 0;
+#define OPENING 0
+#define WALL 1
+
 // Timeline
 float prevEndTime = 0., t = 0.;
 #define TL(end) if (t = beat - prevEndTime, beat < (prevEndTime = end))
@@ -138,6 +143,27 @@ vec4 map(vec3 pos, bool isFull) {
     float hue = 0.5;
     bool emi2 = false;
 
+    if (boxPos.y < 0.) {
+        _IFS_Rot *= 0.;
+        _IFS_Offset *= 0.;
+        _IFS_Iteration = 1.;
+    }
+
+    if (mode == OPENING) {
+        TL(40.) {
+            _IFS_Rot *= 0.;
+            _IFS_Offset *= 0.;
+            _IFS_Iteration = 1.;
+        }
+        else TL(56.) {
+            float fade = saturate(phase((beat - 56.) / 4.));
+            _IFS_Iteration = 1. + fade;
+            _IFS_Offset = vec4(1.36, 0.06, 0.69, 1.) * fade;
+        }
+    }
+
+/*
+
     TL(40.) {
         _IFS_Rot *= 0.;
         _IFS_Offset *= 0.;
@@ -166,6 +192,7 @@ vec4 map(vec3 pos, bool isFull) {
         hue = 0.;
     }
     else TL(200.) {
+        // 0 -> 1 -> 2
         emi2 = true;
         hue = smoothstep(191., 192., beat) * 0.65;
         _IFS_Iteration = 3. + phase(min(t / 4., 2.)) - phase(clamp((beat - 184.) / 4., 0., 2.));
@@ -190,6 +217,8 @@ vec4 map(vec3 pos, bool isFull) {
         _IFS_Rot *= (1. - a);
         _IFS_Offset *= (1. - a);
     }
+
+    */
 
     p1 -= (boxPos + _IFS_Offset.xyz);
 
@@ -230,42 +259,52 @@ vec4 map(vec3 pos, bool isFull) {
         float id = floor((pos.z + D) / 4.);
         hue = 10.;
 
-        TL(18.) { emi = step(1., mod(id, 2.)) * step(id, mod(beat * 4., 16.)); }
-        else TL(32.) {
-            emi = step(1., mod(id, 2.));
-        }
-        else TL(126.) {
-            emi = step(1., mod(id, 2.)) * step(id, mod(beat * 4., 16.));
-            emi = mix(emi, step(.5, hash12(floor(pos.yz) + 123.23 * floor(beat * 2.))), saturate(beat - 112. - pos.y));
-        }
-        else TL(140.) {
-            emi = step(.5, hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)));
-        }
-        else TL(202.) {
-            hue = 0.;
-            float fade1 = smoothstep(140., 144., beat);
-            float fade2 = smoothstep(200., 202., beat);
-            float pw = mix(10., 0.6, fade1);
-            pw = mix(pw, 20., fade2);
-            emi = pow(warning(pos.zy / 2.), pw) * mix(1., step(0., sin(t * 15. * TAU)), fade1 * fade2);
-            emi = step(0.5, emi) * emi * 1.05;
-        }
-        else TL(224.) {
-            emi = pow(hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)), 4.) * smoothstep(0., 4., t);
-            hue = 3.65;
-        }
-        else TL(280.) {
-            float fade1 = smoothstep(276., 280., beat);
-            float fade2 = smoothstep(274., 280., beat);
+        emi = step(1., mod(id, 2.)) * step(id, mod(beat * 4., 16.));
 
-            emi = pow(hash12(floor(pos.yz * mix(1., 16., fade1)) + 123.23 * floor(beat * 2.)), 4.);
-            emi = mix(emi, step(.0, emi) * step(3., mod(floor((pos.z + D) / 2.), 4.)), fade1);
+        if (mode == OPENING) {
+            TL(18.) {
+            }
+            else TL(32.) {
+                emi = step(1., mod(id, 2.));
+            }
+        } else if (mode == WALL) {
+            int wall_id = int(buttons[21].w) % 6;
 
-            hue = hash12(floor(pos.yz) + 123.23 * floor(beat * 8.));
-            hue = mix(hue, 10., fade2);
-        }
-        else TL(320.) {
-            emi = step(3., mod(floor((pos.z + D) / 2.), 4.)) * step(1., mod(floor(pos.y - pos.z - 4. * beatPhase), 2.));
+            if (wall_id == 0) {
+            }
+            else if (wall_id == 1) {
+                emi = mix(emi, step(.5, hash12(floor(pos.yz) + 123.23 * floor(beat * 2.))), saturate(beat - pos.y));
+            }
+            else if (wall_id == 2) {
+                hue = 0.;
+                float fade1 = smoothstep(0., 4., beat);
+                // float fade2 = smoothstep(200., 202., beat);
+                float pw = mix(10., 0.6, fade1);
+                // pw = mix(pw, 20., fade2);
+                emi = pow(warning(pos.zy / 2.), pw) * mix(1., step(0., sin(t * 15. * TAU)), fade1);
+                emi = step(0.5, emi) * emi * 1.05;
+            }
+            else if (wall_id == 3) {
+                emi = mix(0, pow(hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)), 4.), smoothstep(0, 2, beat));
+                hue = 3.65;
+            }
+            else if (wall_id == 4) {
+                emi = pow(hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)), 4.);
+                hue = mix(3.65, hash12(floor(pos.yz) + 123.23 * floor(beat * 8.)), smoothstep(0, 4, beat));
+            }
+            else if (wall_id == 5) {
+                // emi = ;
+
+                float fade1 = smoothstep(0., 2., beat);
+                float fade2 = smoothstep(2., 4., beat);
+
+                emi = pow(hash12(floor(pos.yz * mix(1., 16., fade1)) + 123.23 * floor(beat * 2.)), 4.);
+                emi = mix(emi, step(.0, emi) * step(3., mod(floor((pos.z + D) / 2.), 4.)), fade1);
+                emi = mix(emi, step(3., mod(floor((pos.z + D) / 2.), 4.)) * step(1., mod(floor(pos.y - pos.z - 4. * beatPhase), 2.)), fade2);
+
+                hue = hash12(floor(pos.yz * mix(1., 16., fade1)) + 123.23 * floor(beat * 8.));
+                hue = mix(hue, 10., fade2);
+            }
         }
     }
 
@@ -326,15 +365,41 @@ void raymarching_(vec3 ro1, vec3 rd1) {
 void main() {
     initBeat();
 
+    // シーン全体をスキップ
+    if (int(buttons[20].w) % 2 == 0) {
+        outColor = vec4(0, 0, 0, 1);
+        return;
+    }
+
+    // シーン全体
+    float time_scene = buttons[20].y;
+    float time_ = time_scene;
+    mode = OPENING;
+
+    float time_wall = buttons[21].y;
+    if (time_wall < time_) {
+        time_ = time_wall;
+        mode = WALL;
+    }
+
+    // beat関連
+    beat = time_ * bpm / 60.0;
+    beatTau = beat * TAU;
+    beatPhase = phase(beat);
+
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
     boxPos = vec3(0);
-    boxPos.y = mix(-12., 0., smoothstep(20., 48., beat));
-    boxPos.y = mix(boxPos.y, -12., smoothstep(304., 320., beat));
+
+    if (mode == OPENING) boxPos.y = mix(-12., 0., smoothstep(20., 48., beat));
+    // boxPos.y = mix(boxPos.y, -12., smoothstep(304., 320., beat));
 
     // Camera
     vec2 noise = hash23(vec3(time, gl_FragCoord)) - .5;  // AA
     vec2 uv2 = (2. * (gl_FragCoord.xy + noise) - resolution.xy) / resolution.x;
+
+    target = boxPos;
+    fov = 120.;
 
     // 通常時カメラ
     float dice = hash11(floor(beat / 8. + 2.) * 123.);
@@ -343,8 +408,47 @@ void main() {
     else
         ro = vec3(9.5 - dice * 20., 1., -12.3);
 
-    target = boxPos;
-    fov = 120.;
+    if (mode == OPENING) {
+        // Timeline
+        TL(8.) {
+            ro = vec3(0, -1.36, -12.3 + t * .3);
+            target = vec3(0., -2.2, 0.);
+            fov = 100.;
+        }
+        else TL(16.) {
+            ro = vec3(9.5, -1.36, -12.3 + t * .3);
+            target = vec3(0., -2.2, 0.);
+            fov = 100.;
+        }
+        else TL(20.) {
+            ro = vec3(5.5, -5, -1.2);
+            target = vec3(0., -8., -0.);
+            fov = 100.0 + t;
+        }
+        else TL(32.) {
+            ro = vec3(5.5, -5, -1.2);
+            target = vec3(0., -8., -0.);
+            fov = 60.0 + t;
+        }
+        else TL(40.) {
+            ro = vec3(10.8, -4.2, -7.2 + t * .1);
+            fov = 93.;
+        }
+        else TL(64.) {
+            ro = vec3(0., 1., -12.3);
+            target = vec3(0);
+            fov = 100. - t;
+        }
+    }
+    else if (mode == WALL) {
+        if (beat < 4) {
+            ro = vec3(-5., 1., 18.);
+            target = vec3(5.0, -1., 16.);
+            fov = 100. - time_;
+        }
+    }
+
+/*
 
     // Timeline
     TL(8.) {
@@ -429,6 +533,8 @@ void main() {
         fov = 90. + t;
     }
 
+*/
+
     vec3 up = vec3(0, 1, 0);
     vec3 fwd = normalize(target - ro);
     vec3 right = normalize(cross(up, fwd));
@@ -442,9 +548,9 @@ void main() {
 #else
     madtracer(ro, rd, hash12(uv2));
     vec3 bufa = texture(transcendental_cube, uv).xyz;
-
-    // fade out
-    scol = mix(scol, vec3(0), smoothstep(316., 320., beat));
     outColor = saturate(vec4(0.7 * scol + 0.7 * bufa, 1.));
+
+    outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(29, 3), fontSize, beat, 1.0, 3.0));
+    outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(54, 3), fontSize, buttons[21].w, 1.0, 1.0));
 #endif
 }
