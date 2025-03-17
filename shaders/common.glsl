@@ -17,8 +17,8 @@ float bpm, beat, beatTau, beatPhase;
 void initBeat()
 {
     // 7bitずつ分けてBPMを受け取る
-    float msb = sliders[16];
-    float lsb = sliders[17];
+    float msb = sliders[24];
+    float lsb = sliders[25];
 
     bpm = (lsb * 127) + (msb * 127) * 128;
     beat = time * bpm / 60.0;
