@@ -37,27 +37,28 @@ vec4 map(vec3 pos) {
     vec4 m = vec4(1);
 
     vec3 p = pos;
-    float a = 2;
-    vec3 of = vec3(0.32, 0, 0);
+    float a = 3;
+    vec3 of = vec3(0.9, 0.0, 0.1);
     float s = 1;
-    rot(p.xy, pos.z * 0.2);
-    p.y -= cos(p.z * TAU / 8) * 0.5;
+    // rot(p.xy, pos.z * 0.2);
+    p.y -= cos(pos.z * TAU / 32) * 0.3;
     p = mod(p, a) - 0.5 * a;
     p -= of;
     for (int i = 0; i < 3; i++) {
         p = abs(p + of) - of;
-        U(m, sdN(p * 2, 0.01) / 2, VOL, 1, 0.4);
-        rot(p.xz, TAU * 0.8 + (floor(beat)));
-        rot(p.zy, TAU * 0.2 + beatPhase + pos.z * 0.1);
+        U(m, sdBox(p, vec3(0.4, 0.1, 0.1)), VOL, saturate(cos(beatTau * 4)), 0.4);
+        rot(p.xz, TAU * 0.1 + cos(pos.z / 4));
+        if (mod(beat, 2) < 1) rot(p.xy, TAU * 0.4 * beatPhase);
     }
 
-    float scale = 1.05;
+    float scale = 1.04;
     s *= scale;
     p *= scale;
 
-    float e = saturate(cos(beatTau + TAU * pos.z / 16));
-    U(m, sdN(p, 0.02) / s, VOL, 4 * e, 0 * fract(pos.z / 8));
-    U(m, sdN(p, 0.1) / s, SOL, 1, 10);
+    float e = saturate(cos(beatTau - TAU * pos.z / 64));
+    U(m, sdBox(p, vec3(1, 0.5, 0.1)) / s, SOL, 1, 10);
+    U(m, sdBox(p, vec3(1.1, 0.51, 0.01)) / s, VOL, 4 * e, floor(mod(beat, 2)) * fract(pos.z) + 0 * fract(pos.z / 8));
+
 
     return m;
 }
@@ -98,8 +99,8 @@ void main() {
     scene = floor(mod(beat, len * 4) / len);
 
     vec3 ro = vec3(0, 0, -1);
-    ro = vec3(0, 0, beat);
-    float fl = 1 + 1 * mod(floor(beat), 2);
+    ro = vec3(0, 0, beat * 1.);
+    float fl = 1;
     vec3 rd = vec3(uv, fl);
     rd = normalize(rd);
     // rot(rd.xz, beatTau / 8);

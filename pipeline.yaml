@@ -6,7 +6,9 @@ stages:
     target: "raymarching"
 
   - fs: "./shaders/transcendental_cube.glsl"
-    resolution: [1280, 720]
+    # resolution: [640, 360]
+    # resolution: [1280, 720]
+    resolution: [854, 480]
     target: "transcendental_cube"
 
   - fs: "./shaders/composite.glsl"

@@ -25,6 +25,7 @@ vec3 boxPos;
 int mode = 0;
 #define OPENING 0
 #define WALL 1
+#define WALL_SHADER 2
 
 // Timeline
 float prevEndTime = 0., t = 0.;
@@ -136,11 +137,31 @@ vec4 map(vec3 pos, bool isFull) {
 
     vec4 _IFS_Rot = vec4(0.34 + beatPhase / 2.3, -0.28, 0.03, 0.);
     vec4 _IFS_Offset = vec4(1.36, 0.06, 0.69, 1.);
-    float _IFS_Iteration = phase(tri(beat / 16.) + 2.);
+    float _IFS_Iteration = phase(tri(beat / 16.) + 3.);
     vec4 _IFS_BoxBase = vec4(1, 1, 1, 0);
     vec4 _IFS_BoxEmissive = vec4(0.05, 1.05, 1.05, 0);
 
-    float hue = 0.5;
+    float hue = 0.2;
+    hue = fract(.12 * beatPhase);
+    // hue = fract(beatPhase * .1 + pos.z) + 1.;
+
+    // _IFS_Rot = vec4(
+    //     .3 + .1 * sin(beatPhase * TAU / 8.),
+    //     .9 + .1 * sin(beatPhase * TAU / 8.),
+    //     .4 + .0 * sin(beatPhase * TAU / 8.),
+    //     0.);
+    _IFS_Rot = vec4(
+        .3 + sliders[13] * sin(beatPhase * TAU / 8.),
+        .9 + sliders[14] * sin(beatPhase * TAU / 8.),
+        .4 + sliders[15] * sin(beatPhase * TAU / 8.),
+        0.);
+    // _IFS_Offset = vec4(1.4, 0.66, 1.2, 1.);
+
+    // _IFS_Offset = vec4(2., 0.3, 0.3 + 0.1 * sin(beatTau / 8.), 1.);
+    // _IFS_Rot = vec4(0.4 + phase(beat) / 2.3, -0.28 + phase(beat) / 2., 0.05, 0.);
+
+    _IFS_Offset = vec4(4. * sliders[5], 4. * sliders[6], 4. * sliders[7], 1.);
+
     bool emi2 = false;
 
     if (boxPos.y < 0.) {
@@ -162,63 +183,7 @@ vec4 map(vec3 pos, bool isFull) {
         }
     }
 
-/*
-
-    TL(40.) {
-        _IFS_Rot *= 0.;
-        _IFS_Offset *= 0.;
-        _IFS_Iteration = 1.;
-    }
-    else TL(56.) {
-        float fade = saturate(phase((beat - 56.) / 4.));
-        _IFS_Iteration = 1. + fade;
-        _IFS_Offset = vec4(1.36, 0.06, 0.69, 1.) * fade;
-    }
-    else TL(84.) {
-    }
-    else TL(96.) {
-        emi2 = true;
-    }
-    else TL(128.) {
-        emi2 = true;
-        hue = fract(.12 * beatPhase);
-    }
-    else TL(140.) {
-        emi2 = true;
-        hue = fract(beatPhase * .1 + pos.z) + 1.;
-        boxEmi *= 1.7;
-    }
-    else TL(152.) {
-        hue = 0.;
-    }
-    else TL(200.) {
-        // 0 -> 1 -> 2
-        emi2 = true;
-        hue = smoothstep(191., 192., beat) * 0.65;
-        _IFS_Iteration = 3. + phase(min(t / 4., 2.)) - phase(clamp((beat - 184.) / 4., 0., 2.));
-        _IFS_Rot = vec4(.3 + .1 * sin(beatPhase * TAU / 8.), .9 + .1 * sin(beatPhase * TAU / 8.), .4, 0.);
-        _IFS_Offset = vec4(1.4, 0.66, 1.2, 1.);
-    }
-    else TL(280.) {
-        emi2 = true;
-        hue = fract(beat * .12);
-        _IFS_Offset = vec4(2., 0.3, 0.3 + 0.3 * sin(beatTau / 8.), 1.);
-        _IFS_Rot = vec4(0.4 + phase(beat) / 2.3, -0.28 + phase(beat) / 2., 0.05, 0.);
-    }
-    else TL(296.) {
-    }
-    else TL(304.) {
-        emi2 = (beat < 296.);
-        _IFS_Iteration = 4. - phase(min(t / 8., 2.));
-    }
-    else TL(320.) {
-        float a = phase(saturate(t / 8.));
-        _IFS_Iteration = 2. - a;
-        _IFS_Rot *= (1. - a);
-        _IFS_Offset *= (1. - a);
-    }
-
-    */
+    // p1 = mod(p1, 8) - 4;
 
     p1 -= (boxPos + _IFS_Offset.xyz);
 
@@ -293,8 +258,6 @@ vec4 map(vec3 pos, bool isFull) {
                 hue = mix(3.65, hash12(floor(pos.yz) + 123.23 * floor(beat * 8.)), smoothstep(0, 4, beat));
             }
             else if (wall_id == 5) {
-                // emi = ;
-
                 float fade1 = smoothstep(0., 2., beat);
                 float fade2 = smoothstep(2., 4., beat);
 
@@ -305,6 +268,10 @@ vec4 map(vec3 pos, bool isFull) {
                 hue = hash12(floor(pos.yz * mix(1., 16., fade1)) + 123.23 * floor(beat * 8.));
                 hue = mix(hue, 10., fade2);
             }
+        } else if (mode == WALL_SHADER) {
+            vec4 tex = texture(raymarching, fract(pos.zy / 16. + 0.5));
+            emi = dot(vec3(0.5), tex.rgb) * smoothstep(1, 3, beat);
+            hue = hash13(tex.rgb) * 0.6;
         }
     }
 
@@ -376,10 +343,18 @@ void main() {
     float time_ = time_scene;
     mode = OPENING;
 
+    // 標準壁
     float time_wall = buttons[21].y;
     if (time_wall < time_) {
         time_ = time_wall;
         mode = WALL;
+    }
+
+    // 壁シェーダー
+    float time_wall_shader = buttons[22].y;
+    if (time_wall_shader < time_) {
+        time_ = time_wall_shader;
+        mode = WALL_SHADER;
     }
 
     // beat関連
@@ -399,7 +374,7 @@ void main() {
     vec2 uv2 = (2. * (gl_FragCoord.xy + noise) - resolution.xy) / resolution.x;
 
     target = boxPos;
-    fov = 120.;
+    fov = 120;
 
     // 通常時カメラ
     float dice = hash11(floor(beat / 8. + 2.) * 123.);
@@ -408,8 +383,12 @@ void main() {
     else
         ro = vec3(9.5 - dice * 20., 1., -12.3);
 
+    // 激しいカメラワーク
+    dice = hash11(floor(beat / 2) * 123.);
+    float rot = phase(beat) * TAU / 3 * sign(dice - 0.5);
+    // ro = vec3(8. * cos(rot), mix(-6., 6., dice), 8. * sin(rot));
+
     if (mode == OPENING) {
-        // Timeline
         TL(8.) {
             ro = vec3(0, -1.36, -12.3 + t * .3);
             target = vec3(0., -2.2, 0.);
@@ -440,100 +419,13 @@ void main() {
             fov = 100. - t;
         }
     }
-    else if (mode == WALL) {
+    else if (mode == WALL || mode == WALL_SHADER) {
         if (beat < 4) {
             ro = vec3(-5., 1., 18.);
             target = vec3(5.0, -1., 16.);
             fov = 100. - time_;
         }
     }
-
-/*
-
-    // Timeline
-    TL(8.) {
-        ro = vec3(0, -1.36, -12.3 + t * .3);
-        target = vec3(0., -2.2, 0.);
-        fov = 100.;
-    }
-    else TL(16.) {
-        ro = vec3(9.5, -1.36, -12.3 + t * .3);
-        target = vec3(0., -2.2, 0.);
-        fov = 100.;
-    }
-    else TL(20.) {
-        ro = vec3(5.5, -5, -1.2);
-        target = vec3(0., -8., -0.);
-        fov = 100.0 + t;
-    }
-    else TL(32.) {
-        ro = vec3(5.5, -5, -1.2);
-        target = vec3(0., -8., -0.);
-        fov = 60.0 + t;
-    }
-    else TL(40.) {
-        ro = vec3(10.8, -4.2, -7.2 + t * .1);
-        fov = 93.;
-    }
-    else TL(64.) {
-        ro = vec3(0., 1., -12.3);
-        target = vec3(0);
-        fov = 100. - t;
-    }
-    else TL(80.) {
-        ro = vec3(8. * cos(beatTau / 128.), 1., 8. * sin(beatTau / 128.));
-        fov = 80.;
-    }
-    else TL(104.) {
-    }
-    else TL(110.) {
-        ro = vec3(-5., 1., 18.);
-        target = vec3(5.0, -1., 16.);
-        fov = 100. - t;
-    }
-    else TL(124.) {
-    }
-    else TL(130.) {
-        ro = vec3(0., 1., -12.3);
-        fov = 70. - t;
-    }
-    else TL(138.) {
-    }
-    else TL(148.) {
-        ro = vec3(-5., 1., 18.);
-        target = vec3(5.0, -1., 16.);
-        fov = 100. - t;
-    }
-    else TL(160.) {
-        ro *= 1.6;
-    }
-    else TL(178.) {
-        ro = vec3(0, 0, 7. + t / 4.);
-    }
-    else TL(198.) {
-        ro = vec3(8. * cos(beatTau / 128.), -3. + t / 4., 8. * sin(beatTau / 128.));
-    }
-    else TL(208.) {
-        ro = vec3(-5., 1., 18.);
-        target = vec3(5.0, -1., 16.);
-        fov = 100. - t;
-    }
-    else TL(274.) {
-    }
-    else TL(284.) {
-        ro = vec3(-5., 1., 18.);
-        target = vec3(5.0, -1., 16.);
-        fov = 100. - t;
-    }
-    else TL(304.) {
-    }
-    else TL(320.) {
-        ro = vec3(0., 1., -12.3);
-        target = vec3(0);
-        fov = 90. + t;
-    }
-
-*/
 
     vec3 up = vec3(0, 1, 0);
     vec3 fwd = normalize(target - ro);

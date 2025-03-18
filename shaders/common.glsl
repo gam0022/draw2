@@ -14,8 +14,7 @@ uniform sampler2D composite;
 
 float bpm, beat, beatTau, beatPhase;
 
-void initBeat()
-{
+void initBeat() {
     // 7bitずつ分けてBPMを受け取る
     float msb = sliders[24];
     float lsb = sliders[25];
@@ -54,6 +53,12 @@ vec3 hash31(float p) {
     return fract((p3.xxy + p3.yzz) * p3.zyx);
 }
 
+float hash13(vec3 p3) {
+    p3 = fract(p3 * .1031);
+    p3 += dot(p3, p3.zyx + 31.32);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
 vec2 hash22(vec2 p) {
     vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
     p3 += dot(p3, p3.yzx + 33.33);
@@ -88,7 +93,6 @@ void pmod(inout vec2 p, float s) {
     a = floor(a / n) * n;
     rot(p, a);
 }
-
 
 float DigitBin(const in int x) {
     return x == 0   ? 480599.0
