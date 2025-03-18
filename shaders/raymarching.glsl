@@ -22,17 +22,6 @@ vec3 evalLight(vec3 p, vec3 normal, vec3 view, vec3 light, vec3 baseColor, float
     return (diffuse + specular) * max(0.0, dot(light, normal));
 }
 
-float sdN(vec3 p, float z) {
-    rot(p.xy, -0.07 * TAU);
-    if (p.x < 0) p.y = -p.y;
-    p.x = abs(p.x);
-    float w = 0.13;
-    float h = 0.07;
-    float s = 4;
-    float a = w / h / s * p.y;
-    return min(sdBox(p, vec3(0.2, h, z)), sdBox(p - vec3(0.25 - a, h * (s - 1), 0), vec3(w - a, h * s, z)));
-}
-
 vec4 map(vec3 pos) {
     vec4 m = vec4(1);
 
@@ -46,19 +35,18 @@ vec4 map(vec3 pos) {
     p -= of;
     for (int i = 0; i < 3; i++) {
         p = abs(p + of) - of;
-        U(m, sdBox(p, vec3(0.4, 0.1, 0.1)), VOL, saturate(cos(beatTau * 4)), 0.4);
+        U(m, sdBox(p, vec3(0.4, 0.1, 0.1)), VOL, saturate(cos(beatTau)), 0.4);
         rot(p.xz, TAU * 0.1 + cos(pos.z / 4));
-        if (mod(beat, 2) < 1) rot(p.xy, TAU * 0.4 * beatPhase);
+        if (mod(beat, 2) < 1) rot(p.xy, TAU * 0.1 * beatPhase);
     }
 
-    float scale = 1.04;
+    float scale = 1.05;
     s *= scale;
     p *= scale;
 
     float e = saturate(cos(beatTau - TAU * pos.z / 64));
     U(m, sdBox(p, vec3(1, 0.5, 0.1)) / s, SOL, 1, 10);
-    U(m, sdBox(p, vec3(1.1, 0.51, 0.01)) / s, VOL, 4 * e, floor(mod(beat, 2)) * fract(pos.z) + 0 * fract(pos.z / 8));
-
+    U(m, sdBox(p, vec3(1.1, 0.51, 0.01)) / s, VOL, 4 * e, floor(mod(beat, 2)) * fract(pos.z));
 
     return m;
 }
@@ -99,7 +87,7 @@ void main() {
     scene = floor(mod(beat, len * 4) / len);
 
     vec3 ro = vec3(0, 0, -1);
-    ro = vec3(0, 0, beat * 1.);
+    ro = vec3(0, 0, beatPhase);
     float fl = 1;
     vec3 rd = vec3(uv, fl);
     rd = normalize(rd);

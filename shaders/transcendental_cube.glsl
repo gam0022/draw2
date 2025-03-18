@@ -142,8 +142,9 @@ vec4 map(vec3 pos, bool isFull) {
     vec4 _IFS_BoxEmissive = vec4(0.05, 1.05, 1.05, 0);
 
     float hue = 0.2;
-    hue = fract(.12 * beatPhase);
+    // hue = fract(.12 * beatPhase);
     // hue = fract(beatPhase * .1 + pos.z) + 1.;
+    // hue = 0.0;
 
     // _IFS_Rot = vec4(
     //     .3 + .1 * sin(beatPhase * TAU / 8.),
@@ -157,8 +158,8 @@ vec4 map(vec3 pos, bool isFull) {
         0.);
     // _IFS_Offset = vec4(1.4, 0.66, 1.2, 1.);
 
-    // _IFS_Offset = vec4(2., 0.3, 0.3 + 0.1 * sin(beatTau / 8.), 1.);
-    // _IFS_Rot = vec4(0.4 + phase(beat) / 2.3, -0.28 + phase(beat) / 2., 0.05, 0.);
+    _IFS_Offset = vec4(2., 0.3, 0.3 + 0.1 * sin(beatTau / 8.), 1.);
+    _IFS_Rot = vec4(0.4 + phase(beat) / 2.3, -0.28 + phase(beat) / 2., 0.05, 0.);
 
     _IFS_Offset = vec4(4. * sliders[5], 4. * sliders[6], 4. * sliders[7], 1.);
 

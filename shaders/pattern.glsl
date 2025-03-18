@@ -50,10 +50,10 @@ void main() {
         float c = ary[int(b)];
         // c = hash12(grid + 32 * floor(beat)) * 10.;
         float d = saturate(cos(beat * TAU - c * TAU / 15));
-        col += sdBox(p, vec2(0.45 * d)) < 0.0 ? pal(fract(beat * 2)) * d : vec3(0.0);
+        col += sdBox(p, vec2(0.45 * d)) < 0.0 ? pal(fract(beat)) * d : vec3(0.0);
     }
 
-    // col += saturate(cos(beat * TAU));
+    col += saturate(cos(beat * TAU));
 
     outColor = vec4(col, 1);
 }

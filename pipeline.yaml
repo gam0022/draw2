@@ -1,18 +1,22 @@
 stages:
   - fs: "./shaders/pattern.glsl"
     target: "pattern"
+    wrap_mode: repeat
 
   - fs: "./shaders/raymarching.glsl"
     target: "raymarching"
+    wrap_mode: repeat
 
   - fs: "./shaders/transcendental_cube.glsl"
     # resolution: [640, 360]
     # resolution: [1280, 720]
     resolution: [854, 480]
     target: "transcendental_cube"
+    wrap_mode: repeat
 
   - fs: "./shaders/composite.glsl"
     target: "composite"
+    wrap_mode: repeat
 
   - fs: "./shaders/posteffect.glsl"
 
