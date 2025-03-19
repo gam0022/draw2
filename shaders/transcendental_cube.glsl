@@ -94,8 +94,10 @@ float warning(vec2 p) {
         float ss = smoothstep(1., 1.05, mod(p.x * 10. + 10. * p.y + 8. * ph, 2.));
         mark = saturate(step(0., d) + ss);
     } else {
-        vec4[] param_array = vec4[](vec4(140., 72., 0., 0.), vec4(0., 184., 482, 0.), vec4(0., 0., 753., 0.), vec4(541., 156., 453., 0.), vec4(112., 0., 301., 0.),  // 0-3
-                                    vec4(311., 172., 50., 0.), vec4(249., 40., 492., 0.), vec4(0.));                                                       // 4-7
+        vec4[] param_array =
+            vec4[](vec4(140., 72., 0., 0.), vec4(0., 184., 482, 0.), vec4(0., 0., 753., 0.),
+                   vec4(541., 156., 453., 0.), vec4(112., 0., 301., 0.),             // 0-3
+                   vec4(311., 172., 50., 0.), vec4(249., 40., 492., 0.), vec4(0.));  // 4-7
 
         vec4 param = param_array[int(mod(dice * 33.01, 8.))] / vec2(1200., 675.).xyxy;
         // param = PU;
@@ -151,11 +153,9 @@ vec4 map(vec3 pos, bool isFull) {
     //     .9 + .1 * sin(beatPhase * TAU / 8.),
     //     .4 + .0 * sin(beatPhase * TAU / 8.),
     //     0.);
-    _IFS_Rot = vec4(
-        .3 + sliders[13] * sin(beatPhase * TAU / 8.),
-        .9 + sliders[14] * sin(beatPhase * TAU / 8.),
-        .4 + sliders[15] * sin(beatPhase * TAU / 8.),
-        0.);
+    _IFS_Rot = vec4(.3 + sliders[13] * sin(beatPhase * TAU / 8.),
+                    .9 + sliders[14] * sin(beatPhase * TAU / 8.),
+                    .4 + sliders[15] * sin(beatPhase * TAU / 8.), 0.);
     // _IFS_Offset = vec4(1.4, 0.66, 1.2, 1.);
 
     _IFS_Offset = vec4(2., 0.3, 0.3 + 0.1 * sin(beatTau / 8.), 1.);
@@ -228,8 +228,7 @@ vec4 map(vec3 pos, bool isFull) {
         emi = step(1., mod(id, 2.)) * step(id, mod(beat * 4., 16.));
 
         if (mode == OPENING) {
-            TL(18.) {
-            }
+            TL(18.) {}
             else TL(32.) {
                 emi = step(1., mod(id, 2.));
             }
@@ -237,11 +236,10 @@ vec4 map(vec3 pos, bool isFull) {
             int wall_id = int(buttons[21].w) % 6;
 
             if (wall_id == 0) {
-            }
-            else if (wall_id == 1) {
-                emi = mix(emi, step(.5, hash12(floor(pos.yz) + 123.23 * floor(beat * 2.))), saturate(beat - pos.y));
-            }
-            else if (wall_id == 2) {
+            } else if (wall_id == 1) {
+                emi = mix(emi, step(.5, hash12(floor(pos.yz) + 123.23 * floor(beat * 2.))),
+                          saturate(beat - pos.y));
+            } else if (wall_id == 2) {
                 hue = 0.;
                 float fade1 = smoothstep(0., 4., beat);
                 // float fade2 = smoothstep(200., 202., beat);
@@ -249,22 +247,25 @@ vec4 map(vec3 pos, bool isFull) {
                 // pw = mix(pw, 20., fade2);
                 emi = pow(warning(pos.zy / 2.), pw) * mix(1., step(0., sin(t * 15. * TAU)), fade1);
                 emi = step(0.5, emi) * emi * 1.05;
-            }
-            else if (wall_id == 3) {
-                emi = mix(0, pow(hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)), 4.), smoothstep(0, 2, beat));
+            } else if (wall_id == 3) {
+                emi = mix(0, pow(hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)), 4.),
+                          smoothstep(0, 2, beat));
                 hue = 3.65;
-            }
-            else if (wall_id == 4) {
+            } else if (wall_id == 4) {
                 emi = pow(hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)), 4.);
-                hue = mix(3.65, hash12(floor(pos.yz) + 123.23 * floor(beat * 8.)), smoothstep(0, 4, beat));
-            }
-            else if (wall_id == 5) {
+                hue = mix(3.65, hash12(floor(pos.yz) + 123.23 * floor(beat * 8.)),
+                          smoothstep(0, 4, beat));
+            } else if (wall_id == 5) {
                 float fade1 = smoothstep(0., 2., beat);
                 float fade2 = smoothstep(2., 4., beat);
 
-                emi = pow(hash12(floor(pos.yz * mix(1., 16., fade1)) + 123.23 * floor(beat * 2.)), 4.);
+                emi = pow(hash12(floor(pos.yz * mix(1., 16., fade1)) + 123.23 * floor(beat * 2.)),
+                          4.);
                 emi = mix(emi, step(.0, emi) * step(3., mod(floor((pos.z + D) / 2.), 4.)), fade1);
-                emi = mix(emi, step(3., mod(floor((pos.z + D) / 2.), 4.)) * step(1., mod(floor(pos.y - pos.z - 4. * beatPhase), 2.)), fade2);
+                emi = mix(emi,
+                          step(3., mod(floor((pos.z + D) / 2.), 4.)) *
+                              step(1., mod(floor(pos.y - pos.z - 4. * beatPhase), 2.)),
+                          fade2);
 
                 hue = hash12(floor(pos.yz * mix(1., 16., fade1)) + 123.23 * floor(beat * 8.));
                 hue = mix(hue, 10., fade2);
@@ -283,7 +284,8 @@ vec4 map(vec3 pos, bool isFull) {
 
 vec3 normal(vec3 p) {
     vec2 e = vec2(0, .05);
-    return normalize(map(p, false).x - vec3(map(p - e.yxx, false).x, map(p - e.xyx, false).x, map(p - e.xxy, false).x));
+    return normalize(map(p, false).x - vec3(map(p - e.yxx, false).x, map(p - e.xyx, false).x,
+                                            map(p - e.xxy, false).x));
 }
 
 // Based on EOT - Grid scene by Virgill
@@ -419,8 +421,7 @@ void main() {
             target = vec3(0);
             fov = 100. - t;
         }
-    }
-    else if (mode == WALL || mode == WALL_SHADER) {
+    } else if (mode == WALL || mode == WALL_SHADER) {
         if (beat < 4) {
             ro = vec3(-5., 1., 18.);
             target = vec3(5.0, -1., 16.);
@@ -443,7 +444,9 @@ void main() {
     vec3 bufa = texture(transcendental_cube, uv).xyz;
     outColor = saturate(vec4(0.7 * scol + 0.7 * bufa, 1.));
 
-    outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(29, 3), fontSize, beat, 1.0, 3.0));
-    outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(54, 3), fontSize, buttons[21].w, 1.0, 1.0));
+    outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
+                       PrintValue(gl_FragCoord.xy, grid(29, 3), fontSize, beat, 1.0, 3.0));
+    outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
+                       PrintValue(gl_FragCoord.xy, grid(54, 3), fontSize, buttons[21].w, 1.0, 1.0));
 #endif
 }
