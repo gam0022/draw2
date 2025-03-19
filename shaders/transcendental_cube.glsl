@@ -143,7 +143,7 @@ vec4 map(vec3 pos, bool isFull) {
     vec4 _IFS_BoxBase = vec4(1, 1, 1, 0);
     vec4 _IFS_BoxEmissive = vec4(0.05, 1.05, 1.05, 0);
 
-    float hue = 0.2;
+    float hue = 0.5;
     // hue = fract(.12 * beatPhase);
     // hue = fract(beatPhase * .1 + pos.z) + 1.;
     // hue = 0.0;
@@ -217,7 +217,7 @@ vec4 map(vec3 pos, bool isFull) {
 
     // door
     float emi = step(p2.x, 2.) * step(p2.y, 2.);
-    if (mod(beat, 2.) < 1. && (beat < 48. || beat > 300.)) emi = 1. - emi;
+    // if (mod(beat, 2.) < 1.) emi = 1. - emi;
     opUnion(m, sdBox(p2 - vec3(0, 0, D + a), vec3(W, H, a)), SOL, roughness + emi * 2., 10.0);
 
     // wall
@@ -447,6 +447,6 @@ void main() {
     outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
                        PrintValue(gl_FragCoord.xy, grid(29, 3), fontSize, beat, 1.0, 3.0));
     outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
-                       PrintValue(gl_FragCoord.xy, grid(54, 3), fontSize, buttons[21].w, 1.0, 1.0));
+                       PrintValue(gl_FragCoord.xy, grid(14, 3), fontSize, buttons[21].w, 1.0, 1.0));
 #endif
 }
