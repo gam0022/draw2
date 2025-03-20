@@ -1,6 +1,6 @@
 #version 460 core
 
-#pragma include "./shaders/common.glsl"
+#pragma include "shaders/_common.glsl"
 
 #define VOL 0.0
 #define SOL 1.0

@@ -1,6 +1,6 @@
 out vec4 outColor;
 
-#pragma include "./shaders/uniforms.glsl"
+#pragma include "shaders/_uniforms.glsl"
 
 uniform sampler2D pattern;
 uniform sampler2D font_test;
@@ -144,3 +144,5 @@ vec2 fontSize = vec2(4, 5) * vec2(5, 3);
 vec2 grid(int x, int y) {
     return fontSize.xx * vec2(1, ceil(fontSize.y / fontSize.x)) * vec2(x, y) + vec2(2);
 }
+
+#pragma include "shaders/_font.glsl"

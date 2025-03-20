@@ -1,6 +1,6 @@
 #version 460 core
 
-#pragma include "./shaders/common.glsl"
+#pragma include "shaders/_common.glsl"
 
 // https://www.shadertoy.com/view/lsf3WH
 // Noise - value - 2D by iq

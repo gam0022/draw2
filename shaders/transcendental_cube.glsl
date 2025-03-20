@@ -1,6 +1,6 @@
 #version 460 core
 
-#pragma include "./shaders/common.glsl"
+#pragma include "shaders/_common.glsl"
 
 #define tri(x) (1. - 4. * abs(fract(x) - .5))
 #define phase(x) (floor(x) + .5 + .5 * cos(TAU * .5 * exp(-5. * fract(x))))

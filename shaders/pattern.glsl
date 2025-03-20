@@ -1,6 +1,6 @@
 #version 460 core
 
-#pragma include "./shaders/common.glsl"
+#pragma include "shaders/_common.glsl"
 
 void main() {
     vec2 uv0 = gl_FragCoord.xy / resolution.xy;
