@@ -266,7 +266,7 @@ vec4 map(vec3 pos, bool isFull) {
                 hue = mix(hue, 10., fade2);
             }
         } else if (mode == WALL_SHADER) {
-            vec4 tex = texture(scene3d, fract(pos.zy / 16. + 0.5));
+            vec4 tex = texture(scene2d, fract(pos.zy / 16. + 0.5));
             emi = dot(vec3(0.5), tex.rgb) * smoothstep(1, 3, beat);
             hue = hash13(tex.rgb) * 0.6;
         }
@@ -439,9 +439,9 @@ void main() {
     vec3 bufa = texture(transcendental_cube, uv).xyz;
     outColor = saturate(vec4(0.7 * scol + 0.7 * bufa, 1.));
 
-    outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
-                       PrintValue(gl_FragCoord.xy, grid(29, 3), fontSize, beat, 1.0, 3.0));
-    outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
-                       PrintValue(gl_FragCoord.xy, grid(14, 3), fontSize, buttons[21].w, 1.0, 1.0));
+    // outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
+    //                    PrintValue(gl_FragCoord.xy, grid(29, 3), fontSize, beat, 1.0, 3.0));
+    // outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
+    //                    PrintValue(gl_FragCoord.xy, grid(14, 3), fontSize, buttons[21].w, 1.0, 1.0));
 #endif
 }

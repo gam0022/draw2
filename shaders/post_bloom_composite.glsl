@@ -2,12 +2,13 @@
 
 #pragma include "shaders/_common.glsl"
 
-void main()
-{
-    float ins = 1;
+void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
     vec3 col = texture(composite, uv).rgb;
     vec3 bloom_blur = texture(post_bloom_blur, uv).rgb;
-    col = col + bloom_blur * ins;
+
+    float bloom_intensity = 1;
+    col = col + bloom_blur * bloom_intensity;
+
     outColor = vec4(col, 1);
 }
