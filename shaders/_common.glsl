@@ -2,9 +2,8 @@ out vec4 outColor;
 
 #pragma include "shaders/_uniforms.glsl"
 
-uniform sampler2D pattern;
-uniform sampler2D font_test;
-uniform sampler2D raymarching;
+uniform sampler2D scene2d;
+uniform sampler2D scene3d;
 uniform sampler2D transcendental_cube;
 uniform sampler2D composite;
 
@@ -22,6 +21,7 @@ void initBeat() {
     float msb = sliders[24];
     float lsb = sliders[25];
 
+    bpm = 128;
     bpm = (lsb * 127) + (msb * 127) * 128;
     beat = time * bpm / 60.0;
     beatTau = beat * TAU;
@@ -32,7 +32,7 @@ float scene;
 
 // sliders
 #define slider_motion_blur sliders[0]
-#define slider_raymarching sliders[1]
+#define slider_scene3d sliders[1]
 #define slider_flash sliders[2]
 
 // Hash without Sine by David Hoskins.

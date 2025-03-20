@@ -266,7 +266,7 @@ vec4 map(vec3 pos, bool isFull) {
                 hue = mix(hue, 10., fade2);
             }
         } else if (mode == WALL_SHADER) {
-            vec4 tex = texture(raymarching, fract(pos.zy / 16. + 0.5));
+            vec4 tex = texture(scene3d, fract(pos.zy / 16. + 0.5));
             emi = dot(vec3(0.5), tex.rgb) * smoothstep(1, 3, beat);
             hue = hash13(tex.rgb) * 0.6;
         }
@@ -308,7 +308,7 @@ void madtracer(vec3 ro1, vec3 rd1, float seed) {
     }
 }
 
-void raymarching_(vec3 ro1, vec3 rd1) {
+void raymarching(vec3 ro1, vec3 rd1) {
     scol = vec3(0);
     float t = 0.;
     vec4 m;
@@ -432,7 +432,7 @@ void main() {
 
 // #define DEBUG_SCENE
 #ifdef DEBUG_SCENE
-    raymarching_(ro, rd);
+    raymarching(ro, rd);
     outColor = vec4(scol, 1.);
 #else
     madtracer(ro, rd, hash12(uv2));

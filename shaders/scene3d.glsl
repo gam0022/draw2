@@ -77,7 +77,7 @@ vec3 render(vec3 ro, vec3 rd) {
 
 void main() {
     vec2 uv0 = gl_FragCoord.xy / resolution.xy;
-    vec4 prevColor = texture(raymarching, uv0);
+    vec4 prevColor = texture(scene3d, uv0);
 
     vec2 uv = (2. * gl_FragCoord.xy - resolution.xy) / resolution.x;
 

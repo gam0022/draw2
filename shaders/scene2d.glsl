@@ -4,7 +4,7 @@
 
 void main() {
     vec2 uv0 = gl_FragCoord.xy / resolution.xy;
-    vec4 prevColor = texture(pattern, uv0);
+    vec4 prevColor = texture(scene2d, uv0);
 
     vec2 uv = (2. * gl_FragCoord.xy - resolution.xy) / resolution.x;
 
@@ -48,7 +48,7 @@ void main() {
         col += sdBox(p, vec2(0.45 * d)) < 0.0 ? pal(fract(beat)) * d : vec3(0.0);
     }
 
-    col += saturate(cos(beat * TAU));
+    // col += saturate(cos(beat * TAU));
 
     outColor = vec4(col, 1);
 }

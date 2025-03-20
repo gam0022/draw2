@@ -1,14 +1,10 @@
 stages:
-  - fs: "shaders/pattern.glsl"
-    target: "pattern"
+  - fs: "shaders/scene2d.glsl"
+    target: "scene2d"
     wrap_mode: repeat
 
-  - fs: "shaders/raymarching.glsl"
-    target: "raymarching"
-    wrap_mode: repeat
-
-  - fs: "shaders/font_test.glsl"
-    target: "font_test"
+  - fs: "shaders/scene3d.glsl"
+    target: "scene3d"
     wrap_mode: repeat
 
   - fs: "shaders/transcendental_cube.glsl"

@@ -103,7 +103,7 @@ vec3 PBRNeutralToneMapping(vec3 color) {
 }
 
 vec3 invertPattern(vec3 col, vec2 uv) {
-    return mix(col, saturate(1 - col), texture(pattern, uv).r);
+    return mix(col, saturate(1 - col), texture(scene2d, uv).r);
 }
 
 void main() {
@@ -123,6 +123,17 @@ void main() {
     // col = blend(col);
 
     // if (mod(beat, 2) < 1) col = invertPattern(col, uv);
+
+    SetAspect(resolution.xy, 25, true, true);
+    SetAlign(Align_Left_Bottom);
+    SetFontName(NAME_ORBITRON);
+    SetFontStyle(STYLE_NORMAL);
+    Stack_Char(C_B);
+    Stack_Char(C_P);
+    Stack_Char(C_M);
+    Stack_Char(C_colon);
+    col += Render_Char(uv);
+    col += Print_Number(uv, bpm, 1, 3);
 
     outColor = vec4(col, 1);
 }
