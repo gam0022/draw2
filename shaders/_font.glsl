@@ -82,24 +82,36 @@
 
 // Chars Area ------------------------------------------------------------------------------
 
-// uniform sampler2D TexFont;
-uniform sampler2D font_receipt_all;
-uniform sampler2D font_anton_all;
-uniform sampler2D font_anton_ascii;
-uniform sampler2D font_orbitron_ascii;
-#define TexFont font_orbitron_ascii
+int Font_Name = 0;
+#define NAME_RECEIPT 0
+#define NAME_ORBITRON 1
 
-// #define TexFont_RES ivec2(61, 61)
-#define TexFont_RES ivec2(10, 10)
+ivec2 TexFont_RES = ivec2(61, 61);
+int Font_Offset = 0;
+
+void SetFontName(int fontName) {
+    Font_Name = fontName;
+
+    if (Font_Name == NAME_RECEIPT) {
+        TexFont_RES = ivec2(61, 61);
+        Font_Offset = 0;
+    } else if (Font_Name == NAME_ORBITRON) {
+        TexFont_RES = ivec2(10, 10);
+        Font_Offset = 1;
+    }
+}
+
+uniform sampler2D font_receipt_all;
+uniform sampler2D font_orbitron_ascii;
+
 #define Font_Size ivec2(52, 52)
 #define Font_Baseline ivec2(0, 0)
 #define Char_List_Max 72
-#define Font_Offset 1
 int Char_List_Index = 0;
 int[Char_List_Max] Char_List;
 
 #define SPACE_F 1.0
-#define SPACE_H 0.5
+#define SPACE_H 0.7
 float GetSpace(int c) {
     bool isH = (0 <= c && c <= 94) || (7073 <= c && c <= 7130);
     return (isH ? SPACE_H : SPACE_F) * float(c >= 0);
@@ -211,7 +223,18 @@ float Print_Char(vec2 uv, int id) {
     vec2 uv2 = remap(uv, uv0, uv1, vec2(0), vec2(1));
     vec2 uv3 = uv2 / vec2(TexFont_RES) +
                vec2(id % TexFont_RES.x, TexFont_RES.y - 1 - id / TexFont_RES.x) / vec2(TexFont_RES);
-    vec4 col = isIn ? texture(TexFont, uv3) : vec4(0);
+
+    // vec4 col = isIn ? texture(TexFont, uv3) : vec4(0);
+    vec4 col = vec4(0);
+
+    if (isIn) {
+        if (Font_Name == NAME_RECEIPT) {
+            col = texture(font_receipt_all, uv3);
+        } else if (Font_Name == NAME_ORBITRON) {
+            col = texture(font_orbitron_ascii, uv3);
+        }
+    }
+
     // float dist = _median(col.r, col.g, col.b) - 0.5;
     float dist = _median(col.r, col.g, col.b);
     if (Font_Style == STYLE_BOLD || Font_Style == STYLE_OUTLINE ||
@@ -223,11 +246,11 @@ float Print_Char(vec2 uv, int id) {
         dist -= 0.5;
     }
     float sig = fwidth(dist);
-    float c = smoothstep(-sig, sig, dist) * col.a * float(id != 0);
+    float c = smoothstep(-sig, sig, dist) * step(0.5, col.a) * float(id != 0);
     if (Font_Style == STYLE_OUTLINE || Font_Style == STYLE_OUTLINE_ITALIC) {
         dist -= 0.2;
         sig = fwidth(dist);
-        c -= smoothstep(-sig, sig, dist) * col.a * float(id != 0);
+        c -= smoothstep(-sig, sig, dist) * step(0.5, col.a) * float(id != 0);
     }
     // float c = clamp(dist + 0.5, 0.0, 1.0) * col.a;
     Font_Anchor.x += Char_Size.x * GetSpace(id);

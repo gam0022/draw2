@@ -11,6 +11,7 @@ void main() {
 
     SetAspect(resolution.xy, 20, true, true);
     SetAlign(Align_Left_Bottom);
+    SetFontName(NAME_ORBITRON);
     SetFontStyle(STYLE_NORMAL);
     Stack_Char(C_B);
     Stack_Char(C_P);
@@ -22,7 +23,8 @@ void main() {
     uv = uv0;
     SetAspect(resolution.xy, 5, true, true);
     SetAlign(Align_Center_Center);
-    // SetFontStyle(STYLE_BOLD);
+    SetFontName(NAME_RECEIPT);
+    SetFontStyle(STYLE_NORMAL);
     Stack_Char(C_G);
     Stack_Char(C_A);
     Stack_Char(C_M);

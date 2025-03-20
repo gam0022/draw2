@@ -113,7 +113,7 @@ void main() {
 
     // vec3 col = texture(composite, uv).rgb;
     vec3 col = chromaticAberration(uv);
-    col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(4, 3), fontSize,bpm, 1.0, 1.0));
+    // col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(4, 3), fontSize,bpm, 1.0, 1.0));
     // col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(38, 3), fontSize, buttons[20].w, 1.0, 1.0));
 
     // col = PBRNeutralToneMapping(col * gTonemapExposure);
