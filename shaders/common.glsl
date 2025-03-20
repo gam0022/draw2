@@ -3,6 +3,7 @@ out vec4 outColor;
 #pragma include "./shaders/uniforms.glsl"
 
 uniform sampler2D pattern;
+uniform sampler2D font_test;
 uniform sampler2D raymarching;
 uniform sampler2D transcendental_cube;
 uniform sampler2D composite;
@@ -11,6 +12,8 @@ uniform sampler2D composite;
 #define TAU (2. * PI)
 #define saturate(x) clamp(x, 0, 1)
 #define phase(x) (floor(x) + .5 + .5 * cos(TAU * .5 * exp(-5. * fract(x))))
+
+#define remap(x, a, b, c, d) ((((x) - (a)) / ((b) - (a))) * ((d) - (c)) + (c))
 
 float bpm, beat, beatTau, beatPhase;
 
@@ -76,6 +79,11 @@ float sdBox(vec3 p, vec3 b) {
     return length(max(q, 0)) + min(0, max(q.x, max(q.y, q.z)));
 }
 
+float sdBox(in vec2 p, in vec2 b) {
+    vec2 d = abs(p) - b;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+}
+
 void U(inout vec4 m, float d, float a, float b, float c) {
     if (d < m.x) m = vec4(d, a, b, c);
 }
@@ -108,7 +116,8 @@ float DigitBin(const in int x) {
                     : 0.0;
 }
 
-float PrintValue(vec2 fragCoord, vec2 pixelCoord, vec2 fontSize, float value, float digits, float decimals) {
+float PrintValue(vec2 fragCoord, vec2 pixelCoord, vec2 fontSize, float value, float digits,
+                 float decimals) {
     vec2 charCoord = (fragCoord - pixelCoord) / fontSize;
     if (charCoord.y < 0.0 || charCoord.y >= 1.0) return 0.0;
     float bits = 0.0;
@@ -126,9 +135,12 @@ float PrintValue(vec2 fragCoord, vec2 pixelCoord, vec2 fontSize, float value, fl
             bits = DigitBin(int(mod(value / pow1, 10.0)));
         }
     }
-    return floor(mod(bits / pow(2.0, floor(fract(charCoord.x) * 4.0) + floor(charCoord.y * 5.0) * 4.0), 2.0));
+    return floor(mod(
+        bits / pow(2.0, floor(fract(charCoord.x) * 4.0) + floor(charCoord.y * 5.0) * 4.0), 2.0));
 }
 
 vec2 fontSize = vec2(4, 5) * vec2(5, 3);
 
-vec2 grid(int x, int y) { return fontSize.xx * vec2(1, ceil(fontSize.y / fontSize.x)) * vec2(x, y) + vec2(2); }
+vec2 grid(int x, int y) {
+    return fontSize.xx * vec2(1, ceil(fontSize.y / fontSize.x)) * vec2(x, y) + vec2(2);
+}

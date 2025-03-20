@@ -14,5 +14,7 @@ void main() {
         col = texture(transcendental_cube, uv).rgb;
     }
 
+    col = texture(font_test, uv).rgb;
+
     outColor = vec4(col, 1);
 }

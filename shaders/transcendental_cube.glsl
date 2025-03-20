@@ -46,11 +46,6 @@ vec3 pal(vec4 m) {
     return mix(col, vec3(.5), .1 * floor(m.w));
 }
 
-float sdBox(vec2 p, vec2 b) {
-    vec2 q = abs(p) - b;
-    return length(max(q, 0.)) + min(max(q.x, q.y), 0.);
-}
-
 // Hexagons - distance by iq
 // https://www.shadertoy.com/view/Xd2GR3
 // return: { 2d cell id (vec2), distance to border, distnace to center }
