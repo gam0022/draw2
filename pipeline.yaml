@@ -18,7 +18,16 @@ stages:
     target: "composite"
     wrap_mode: repeat
 
-  - fs: "shaders/posteffect.glsl"
+  - fs: "shaders/post_bloom_blur.glsl"
+    resolution: [640, 360]
+    target: "post_bloom_blur"
+    wrap_mode: repeat
+
+  - fs: "shaders/post_bloom_composite.glsl"
+    target: "post_bloom_composite"
+    wrap_mode: repeat
+
+  - fs: "shaders/post_final.glsl"
 
 images:
   - path: "images/font_receipt_all.png"

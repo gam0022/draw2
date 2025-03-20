@@ -76,9 +76,9 @@ vec3 chromaticAberration(vec2 uv) {
     shift += gGlitchIntensity * grid;
 
     vec3 col;
-    col.r = texture(composite, uv + shift).r;
-    col.g = texture(composite, uv).g;
-    col.b = texture(composite, uv - shift).b;
+    col.r = texture(post_bloom_composite, uv + shift).r;
+    col.g = texture(post_bloom_composite, uv).g;
+    col.b = texture(post_bloom_composite, uv - shift).b;
     return col;
 }
 
@@ -111,7 +111,7 @@ void main() {
 
     initBeat();
 
-    // vec3 col = texture(composite, uv).rgb;
+    // vec3 col = texture(post_bloom, uv).rgb;
     vec3 col = chromaticAberration(uv);
     // col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(4, 3), fontSize,bpm, 1.0, 1.0));
     // col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(38, 3), fontSize, buttons[20].w, 1.0, 1.0));

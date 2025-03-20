@@ -7,6 +7,9 @@ uniform sampler2D scene3d;
 uniform sampler2D transcendental_cube;
 uniform sampler2D composite;
 
+uniform sampler2D post_bloom_blur;
+uniform sampler2D post_bloom_composite;
+
 #define PI acos(-1)
 #define TAU (2. * PI)
 #define saturate(x) clamp(x, 0, 1)
