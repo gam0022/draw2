@@ -8,7 +8,8 @@ float noise2d(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
     vec2 u = f * f * (3.0 - 2.0 * f);
-    return mix(mix(hash12(i + vec2(0.0, 0.0)), hash12(i + vec2(1.0, 0.0)), u.x), mix(hash12(i + vec2(0.0, 1.0)), hash12(i + vec2(1.0, 1.0)), u.x), u.y);
+    return mix(mix(hash12(i + vec2(0.0, 0.0)), hash12(i + vec2(1.0, 0.0)), u.x),
+               mix(hash12(i + vec2(0.0, 1.0)), hash12(i + vec2(1.0, 1.0)), u.x), u.y);
 }
 
 float fbm(vec2 uv) {
@@ -25,9 +26,8 @@ float fbm(vec2 uv) {
     return f;
 }
 
-
-#define gChromaticAberrationIntensity 0.0
-#define gChromaticAberrationDistance 1.
+#define gChromaticAberrationIntensity 0.05 * fract(beatPhase) * 0
+#define gChromaticAberrationDistance 0.5
 
 #define gVignetteIntensity 1.
 #define gVignetteSmoothness 1.6
@@ -37,10 +37,9 @@ float fbm(vec2 uv) {
 #define gFlash slider_flash
 #define gFlashSpeed 30
 
-#define gGlitchIntensity 0
-#define gXSfhitGlitch 0
-#define gInvertRate 0
-
+#define gGlitchIntensity 0.0
+#define gXSfhitGlitch 0.005 * 0
+#define gInvertRate 0.0
 
 float vignette(vec2 uv) {
     vec2 d = abs(uv - 0.5) * gVignetteIntensity;
@@ -62,7 +61,7 @@ vec3 flash(vec3 c) {
     return c;
 }
 
-vec3 chromaticAberration(vec2 uv) {
+vec3 chromaticAberration(sampler2D tex, vec2 uv) {
     uv.x += gXSfhitGlitch * (fbm(vec2(232.0 * uv.y, beat)) - 0.5);
 
     vec2 d = abs(uv - 0.5);
@@ -76,9 +75,9 @@ vec3 chromaticAberration(vec2 uv) {
     shift += gGlitchIntensity * grid;
 
     vec3 col;
-    col.r = texture(post_bloom_composite, uv + shift).r;
-    col.g = texture(post_bloom_composite, uv).g;
-    col.b = texture(post_bloom_composite, uv - shift).b;
+    col.r = texture(tex, uv + shift).r;
+    col.g = texture(tex, uv).g;
+    col.b = texture(tex, uv - shift).b;
     return col;
 }
 
@@ -106,21 +105,75 @@ vec3 invertPattern(vec3 col, vec2 uv) {
     return mix(col, saturate(1 - col), texture(scene2d, uv).r);
 }
 
+vec3 filterLaplacian(sampler2D tex, vec2 uv, vec2 uv_offset) {
+    vec3 sum = vec3(0);
+    float offsetx = uv_offset.x;
+    float offsety = uv_offset.y;
+    for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+            vec2 offsets = vec2(offsetx * j, offsety * i);
+            int index = i * 3 + j;
+            float weight = (index == 4) ? -8.0 : 1.0;
+            sum += texture(tex, uv + offsets).xyz * weight;
+        }
+    }
+    return sum;
+}
+
+float Manhattan2D(vec2 p) { return abs(p.x) + abs(p.y); }
+
+void ManhattanVoronoi2D(vec2 p, inout float d1, inout float d2, inout vec2 idx) {
+    vec2 cellPos = floor(p);
+    vec2 localPos = p - cellPos;
+    d1 = 100.0;
+
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            vec2 cellOffset = vec2(i, j);
+            vec2 pointPosition = cellOffset + hash22(cellPos + cellOffset);
+
+            float dist = Manhattan2D(localPos - pointPosition);
+
+            if (dist < d1) {
+                d2 = d1;
+                d1 = dist;
+                idx = cellPos + cellOffset;
+            } else if (dist < d2) {
+                d2 = dist;
+            }
+        }
+    }
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
     initBeat();
 
     // vec3 col = texture(post_bloom, uv).rgb;
-    vec3 col = chromaticAberration(uv);
-    // col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(4, 3), fontSize,bpm, 1.0, 1.0));
-    // col = mix(col, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(38, 3), fontSize, buttons[20].w, 1.0, 1.0));
+    vec3 col = chromaticAberration(post_bloom_composite, uv);
 
     // col = PBRNeutralToneMapping(col * gTonemapExposure);
     // col *= vignette(uv);
     col = invert(col, uv);
     col = flash(col);
     // col = blend(col);
+
+    if (false) {
+        // ラプラシアンフィルター
+        vec2 offsets = 1.0 / resolution.xy;
+        col = filterLaplacian(post_bloom_composite, uv, offsets);
+    }
+
+    if (true) {
+        float d1, d2;
+        vec2 idx;
+        ManhattanVoronoi2D(vec2(uv * 5.0 + floor(time) * 10.0), d1, d2, idx);
+        vec2 velo = hash22(idx + vec2(100.0)) * 2.0 - 1.0;
+        ivec2 velo_int = ivec2(velo * (100.0 + beatPhase));
+        vec2 dxy = 1.0 / resolution.xy;
+        col = texture(post_bloom_composite, mod(uv + vec2(velo_int * dxy), 1.0)).rgb;
+    }
 
     col = mix(col, vec3(0), slider_dark);
 

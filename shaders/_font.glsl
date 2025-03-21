@@ -232,7 +232,7 @@ float Print_Char(vec2 uv, int id) {
     vec4 col = vec4(0);
 
     // うろうろ
-    uv3.y = (uv3.y + pow(saturate(sin(beatTau / 4 + id * 0.2)), 4) * (mod(phase(beat / 4 + sin(hash11(id + beatPhase * 0.001))), 16) - 8) / TexFont_RES.y);
+    // uv3.y = (uv3.y + pow(saturate(sin(beatTau / 4 + id * 0.2)), 4) * (mod(phase(beat / 4 + sin(hash11(id + beatPhase * 0.001))), 16) - 8) / TexFont_RES.y);
 
     if (isIn) {
         if (Font_Name == NAME_RECEIPT) {

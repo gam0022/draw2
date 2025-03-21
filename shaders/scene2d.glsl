@@ -197,8 +197,8 @@ void main() {
 
     // text_cell(uv, col);
     // diamond(uv, col);
-    // logo(uv, col);
-    print_text(uv0, col);
+    logo(uv, col);
+    // print_text(uv0, col);
 
     // col += saturate(cos(beat * TAU));
     // if (mod(beat, 2) < 1) col = 1 - col;
