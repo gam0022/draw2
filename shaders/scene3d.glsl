@@ -36,15 +36,16 @@ vec4 map(vec3 pos) {
     for (int i = 0; i < 0; i++) {
         p = abs(p + of) - of;
         // U(m, sdBox(p, vec3(0.4, 0.1, 0.1)), VOL, kick, 0.4);
-        rot(p.xz, TAU * 0.1 + cos(pos.z / 4));
-        if (mod(beat, 2) < 1) rot(p.xy, TAU * 0.1 * beatPhase);
+        // rot(p.xz, TAU * 0.1 + cos(pos.z / 4));
+        // if (mod(beat, 2) < 1) rot(p.xy, TAU * 0.1 * beatPhase);
     }
 
     float scale = 1.05;
     s *= scale;
     p *= scale;
 
-    float e = saturate(cos(beatTau - TAU * pos.z / 64));
+    float e = 1;
+    // e = saturate(cos(beatTau - TAU * pos.z / 64));
     // U(m, sdBox(p, vec3(1, 0.5, 0.1)) / s, SOL, 1, 10);
     U(m, (length(p) - 0.5) / s, SOL, 1, 10);
     // U(m, sdBox(p, vec3(1.1, 0.51, 0.01)) / s, VOL, 4 * e, floor(mod(beat, 2)) * fract(pos.z));
