@@ -23,6 +23,12 @@ uniform sampler2D composite;
 uniform sampler2D post_bloom_blur;
 uniform sampler2D post_bloom_composite;
 
+uniform sampler2D draw_logo;
+uniform sampler2D draw_logo_tokyo;
+uniform sampler2D gam0022;
+uniform sampler2D toufu0301;
+uniform sampler2D toufu0301_full;
+
 #define PI acos(-1)
 #define TAU (2. * PI)
 #define saturate(x) clamp(x, 0, 1)

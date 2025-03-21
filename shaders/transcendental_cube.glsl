@@ -210,19 +210,25 @@ vec4 map(vec3 pos, bool isFull) {
     float emi = 0;
     hue = 10.;
 
+    vec2 uv;
+
     // room
     vec3 p2 = abs(pos);
     float hole = sdBox(pos - vec3(0., -H - 0.5, 0.), vec3(1.1) * smoothstep(18., 24., beat));
 
     // floor and ceil
-    // emi = texture(scene2d, pos.xz / W + 0.5).r * 2.;
+    uv = (pos.xz) / (H * 2);
+    // uv.x /= resolution.x / resolution.y;
+    // emi = texture(scene2d, uv).r * 2.;
     // hue = fract(beatPhase * 0.1);
     opUnion(m, max(sdBox(p2 - vec3(0, H + 4., 0), vec3(W, 4., D)), -hole), SOL, roughness + emi * 2., hue);
 
     // door
     emi = step(p2.x, 2.) * step(p2.y, 2.);
     // if (mod(beat, 2.) < 1.) emi = 1. - emi;
-    // emi = texture(scene2d, pos.xy / W + 0.5).r;
+    uv = (pos.xy) / (H * 2);
+    uv.x /= resolution.x / resolution.y;
+    // emi = texture(scene3d, uv).r;
     opUnion(m, sdBox(p2 - vec3(0, 0, D + a), vec3(W, H, a)), SOL, roughness + emi * 2., hue);
 
     // wall
@@ -274,7 +280,9 @@ vec4 map(vec3 pos, bool isFull) {
                 hue = mix(hue, 10., fade2);
             }
         } else if (mode == WALL_SHADER) {
-            vec4 tex = texture(scene2d, fract(pos.zy / W + 0.5));
+            uv = (pos.zy) / (H * 2);
+            uv.x /= resolution.x / resolution.y;
+            vec4 tex = texture(scene2d, fract(uv));
             emi = dot(vec3(0.5), tex.rgb) * smoothstep(1, 3, beat);
             hue = hash13(tex.rgb) * 0.6;
         }

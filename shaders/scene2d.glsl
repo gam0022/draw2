@@ -61,6 +61,7 @@ void text_cell(vec2 uv, inout vec3 col) {
     }
 
     uv *= a;
+    vec2 grid2 = floor(uv);
     uv = fract(uv);
 
     SetAspect(vec2(1), 2, true, true);
@@ -68,10 +69,10 @@ void text_cell(vec2 uv, inout vec3 col) {
     SetFontName(NAME_RECEIPT);
     // SetFontName(NAME_ORBITRON);
     SetFontStyle(STYLE_NORMAL);
-    float rnd = hash12(grid + beatPhase * 0.0001);
+    float rnd = hash12(grid2 + beatPhase * 0.0001);
     int code = C_0 + int((C_Z - C_0) * rnd);
 
-    // code = TEXT_DRAW2[int(beat + grid.y + 2 + grid.x) % TEXT_DRAW2_LEN];
+    // code = TEXT_DRAW2[int(beat + grid2.y + 2 + grid2.x) % TEXT_DRAW2_LEN];
 
     Stack_Char(code);
     col += Render_Char(uv) * 1.3;
@@ -86,8 +87,44 @@ void text_cell(vec2 uv, inout vec3 col) {
     // col *= pal(fract(beatPhase + 10 * (length(grid))));
 }
 
+void logo(vec2 uv, inout vec3 col) {
+    // vec2 p = uv * 0.8 + 0.5;
+
+    float a = 1;
+
+    vec2 grid = floor(uv * a);
+
+    if (mod(beat, 2) < 1) {
+        uv.y += beatPhase * floor(2 - hash11(grid.x + floor(beat)) * 4);
+    } else {
+        uv.x += beatPhase * floor(2 - hash11(grid.y + floor(beat)) * 4);
+    }
+
+    uv *= a;
+
+    vec2 grid2 = floor(uv);
+
+    uv = fract(uv);
+
+    float rnd = hash12(grid2);
+
+    if (rnd < 0.5) {
+        vec4 col_tofu0301 = texture(toufu0301, uv);
+        col += 1 - col_tofu0301.rgb;
+    }
+    else if (rnd < 1.5) {
+        vec4 col_gam0022 = texture(gam0022, uv);
+        col += col_gam0022.rgb;
+    } else {
+        vec4 texDraw = texture(draw_logo, uv);
+        col += texDraw.rgb * texDraw.a;
+    }
+
+    // if (mod(beat, 2) < 1) col = 1 - col;
+}
+
 void main() {
-    vec2 uv = (2. * gl_FragCoord.xy - resolution.xy) / resolution.x;
+    vec2 uv = (2. * gl_FragCoord.xy - resolution.xy) / resolution.y;
     vec2 uv0 = gl_FragCoord.xy / resolution.xy;
 
     initBeat();
@@ -97,13 +134,14 @@ void main() {
     float id = mod(beat / 1, 2);
 
     if (id <= 1) {
-        diamond(uv, col);
+        // diamond(uv, col);
     } else {
         // text_cell(uv, col);
     }
 
-    text_cell(uv, col);
+    // text_cell(uv, col);
     // diamond(uv, col);
+    logo(uv, col);
 
     // col += saturate(cos(beat * TAU));
 

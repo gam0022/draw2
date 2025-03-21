@@ -39,6 +39,16 @@ images:
     name: "font_receipt_all"
   - path: "images/font_orbitron_ascii.png"
     name: "font_orbitron_ascii"
+  - path: "images/draw_logo.png"
+    name: "draw_logo"
+  - path: "images/draw_logo_tokyo.png"
+    name: "draw_logo_tokyo"
+  - path: "images/gam0022.png"
+    name: "gam0022"
+  - path: "images/toufu0301.png"
+    name: "toufu0301"
+  - path: "images/toufu0301_full.jpg"
+    name: "toufu0301_full"
 
 midi_devices:
   - "loopMIDI"

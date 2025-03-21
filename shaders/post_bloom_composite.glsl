@@ -7,7 +7,7 @@ void main() {
     vec3 col = texture(composite, uv).rgb;
     vec3 bloom_blur = texture(post_bloom_blur, uv).rgb;
 
-    float bloom_intensity = 1;
+    float bloom_intensity = 0;
 
     if (int(button_tscube_scene.w) % 2 == 1) {
         bloom_intensity = 0;
