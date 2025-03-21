@@ -24,11 +24,14 @@ void diamond(vec2 uv, inout vec3 col) {
 
     if (abs_grid.x <= w && abs_grid.y <= w) {
         float a = 1;
-        float[5] ary = float[]((dot((grid), a * vec2(1, -1))), (dot((grid), a * vec2(1, 1))),
-                               abs(dot((grid), a * vec2(1, -1))), abs(dot((grid), a * vec2(1, 1))),
-                               hash12(grid + 32 * floor(beat)) * 10.);
+        float[5] ary = float[](
+            (dot((grid), a * vec2(1, -1))),
+            (dot((grid), a * vec2(1, 1))),
+            abs(dot((grid), a * vec2(1, -1))),
+            abs(dot((grid), a * vec2(1, 1))),
+            hash12(grid + 32 * floor(beat)) * 10.);
 
-        float b = mod(beat / 2, 5.);
+        float b = mod(beat / 4, 5.);
         float c = ary[int(b)];
         // c = hash12(grid + 32 * floor(beat)) * 10.;
         float d = saturate(cos(beat * TAU - c * TAU / 15));
@@ -36,26 +39,17 @@ void diamond(vec2 uv, inout vec3 col) {
     }
 }
 
+int TEXT_DRAW2_LEN = 5;
+
+int TEXT_DRAW2[] = int[](
+    C_D,
+    C_R,
+    C_A,
+    C_W,
+    C_2
+);
+
 void text_cell(vec2 uv, inout vec3 col) {
-    // vec2 p = uv;
-
-    // float a = 4;
-
-    // p *= a;
-    // vec2 grid = floor(p);
-
-    // p = mod(p, 1);
-
-    // // p = mod(p, 1) - 0.5;
-
-    // SetAspect(p, 3, true, true);
-    // SetAlign(Align_Center_Center);
-    // SetFontName(NAME_RECEIPT);
-    // SetFontStyle(STYLE_NORMAL);
-    // float b = abs(dot(grid, vec2(1)));
-    // Stack_Char(C_A);
-    // col += Render_Char(p);
-
     float a = 4;
 
     vec2 grid = floor(uv * a);
@@ -72,12 +66,24 @@ void text_cell(vec2 uv, inout vec3 col) {
     SetAspect(vec2(1), 2, true, true);
     SetAlign(Align_Center_Center);
     SetFontName(NAME_RECEIPT);
+    // SetFontName(NAME_ORBITRON);
     SetFontStyle(STYLE_NORMAL);
     float rnd = hash12(grid + beatPhase * 0.0001);
-    int code = C_A + int(100 * rnd);
+    int code = C_0 + int((C_Z - C_0) * rnd);
+
+    // code = TEXT_DRAW2[int(beat + grid.y + 2 + grid.x) % TEXT_DRAW2_LEN];
+
     Stack_Char(code);
     col += Render_Char(uv);
-    if (code <= C_Z) col *= vec3(1, 0, 1);
+
+    for(int i = 0; i < TEXT_DRAW2_LEN; i++) {
+        if (code == TEXT_DRAW2[i]) {
+            col *= vec3(1, 0, 1);
+            break;
+        }
+    }
+
+    // col *= pal(fract(beatPhase + 10 * (length(grid))));
 }
 
 void main() {
@@ -88,8 +94,16 @@ void main() {
 
     vec3 col = vec3(0);
 
-    // diamond(uv, col);
+    float id = mod(beat / 2, 2);
+
+    if (id <= 1) {
+        diamond(uv, col);
+    } else {
+        text_cell(uv, col);
+    }
+
     text_cell(uv, col);
+    diamond(uv, col);
 
     // col += saturate(cos(beat * TAU));
 

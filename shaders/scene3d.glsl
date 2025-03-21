@@ -96,7 +96,7 @@ void main() {
     vec3 col = render(ro, rd);
 
     // motion blur
-    col = mix(prevColor.rgb, col, slider_motion_blur);
+    col = mix(col, prevColor.rgb, slider_motion_blur);
 
     outColor = vec4(col, 1);
 }

@@ -37,6 +37,7 @@ float scene;
 #define slider_motion_blur sliders[0]
 #define slider_scene3d sliders[1]
 #define slider_flash sliders[2]
+#define slider_bpm_scale sliders[3]
 
 // Hash without Sine by David Hoskins.
 // https://www.shadertoy.com/view/4djSRW
