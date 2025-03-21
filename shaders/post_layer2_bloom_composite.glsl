@@ -4,8 +4,8 @@
 
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
-    vec3 col = texture(composite, uv).rgb;
-    vec3 bloom_blur = texture(post_bloom_blur, uv).rgb;
+    vec3 col = texture(post_layer1, uv).rgb;
+    vec3 bloom_blur = texture(post_layer2_bloom_blur, uv).rgb;
 
     float bloom_intensity = 1;
 

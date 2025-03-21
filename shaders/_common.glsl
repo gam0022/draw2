@@ -9,6 +9,11 @@ out vec4 outColor;
 #define slider_bpm_scale sliders[3]
 #define slider_dark sliders[4]
 
+#define slider_ca_cyclic sliders[8]
+#define slider_ca_glitch sliders[9]
+#define slider_ca_xshift sliders[10]
+
+
 // buttons
 #define button_white_out buttons[8]
 #define button_tscube_scene buttons[20]
@@ -22,9 +27,11 @@ uniform sampler2D scene2d;
 uniform sampler2D scene3d;
 uniform sampler2D transcendental_cube;
 uniform sampler2D composite;
-uniform sampler2D post_bloom_blur;
-uniform sampler2D post_bloom_composite;
-uniform sampler2D post_final;
+uniform sampler2D post_layer1;
+uniform sampler2D post_layer2_bloom_blur;
+uniform sampler2D post_layer2_bloom_composite;
+uniform sampler2D post_layer3_chromatic_aberration;
+uniform sampler2D post_layer4_final;
 
 uniform sampler2D draw_logo;
 uniform sampler2D draw_logo_tokyo;
@@ -36,8 +43,8 @@ uniform sampler2D toufu0301_full;
 #define TAU (2. * PI)
 #define saturate(x) clamp(x, 0, 1)
 #define phase(x) (floor(x) + .5 + .5 * cos(TAU * .5 * exp(-5. * fract(x))))
-
 #define remap(x, a, b, c, d) ((((x) - (a)) / ((b) - (a))) * ((d) - (c)) + (c))
+#define repeat(i, n) for (int i = 0; i < (n); i++)
 
 float bpm, beat, beatTau, beatPhase;
 
