@@ -85,7 +85,7 @@ vec3 drawBeat(vec2 uv) {
 
     uv *= 8;
 
-    uv -= vec2(1.5, 0.16);
+    uv -= vec2(1.5, 0.17);
     uv.x *= resolution.x / resolution.y;
 
     float b = mod(beat, 4);
@@ -103,6 +103,27 @@ vec3 drawBeat(vec2 uv) {
     return col;
 }
 
+vec3 drawSpectrum(sampler1D tex, vec2 uv) {
+    vec3 col = vec3(0);
+
+    uv *= 8;
+
+    uv -= vec2(2.5, 0.08);
+    uv.x *= resolution.x / resolution.y;
+
+    float b = mod(beat, 4);
+
+    int div = 48;
+    repeat(i, div) {
+        float u = float(i) / div;
+        vec4 spec = texture(tex, u);
+        float d = sdBox(uv - vec2(0.1 * i, 0.1 * spec.r), vec2(0.03, 0.1 * spec.r));
+        col += smoothstep(0.01, -0.01, d);
+    }
+
+    return col;
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
@@ -115,15 +136,15 @@ void main() {
     col = invert(col, uv);
     col = flash(col);
     col = whiteOut(col);
-    // col = blend(col);
 
     col = mix(col, vec3(0), slider_dark);
 
     // if (mod(beat, 2) < 1) col = invertPattern(col, uv);
 
-
     col += drawBPM(uv);
     col += drawBeat(uv);
+    col += drawSpectrum(spectrum_smooth, uv);
+
     // SetAlign(Align_Center_Bottom);
     // col += Print_Number(uv, button_white_out.z, 5, 3);
 
