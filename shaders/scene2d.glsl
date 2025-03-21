@@ -2,7 +2,9 @@
 
 #pragma include "shaders/_common.glsl"
 
-void diamond(vec2 uv, inout vec3 col) {
+vec3 diamond(vec2 uv) {
+    vec3 col = vec3(0);
+
     vec2 p = uv;
 
     p += vec2(0.0, 0.1);
@@ -24,19 +26,21 @@ void diamond(vec2 uv, inout vec3 col) {
 
     if (abs_grid.x <= w && abs_grid.y <= w) {
         float a = 1;
-        float[5] ary = float[](
+        float[4] ary = float[](
             (dot((grid), a * vec2(1, -1))),
             (dot((grid), a * vec2(1, 1))),
             abs(dot((grid), a * vec2(1, -1))),
-            abs(dot((grid), a * vec2(1, 1))),
-            hash12(grid + 32 * floor(beat)) * 10.);
+            // abs(dot((grid), a * vec2(1, 1)))
+            hash12(grid + 32 * floor(beat)) * 10.
+        );
 
-        float b = mod(beat / 4, 5.);
+        float b = mod(beat / 2, 4.);
         float c = ary[int(b)];
-        // c = hash12(grid + 32 * floor(beat)) * 10.;
-        float d = saturate(cos(beat * TAU - c * TAU / 15));
-        col += sdBox(p, vec2(0.45 * d)) < 0.0 ? 2 * pal(fract(beat)) * d : vec3(0.0);
+        float d = saturate(cos(beat * TAU - c * TAU / 20));
+        col += sdBox(p, vec2(0.45 * d)) < 0.0 ? pal(fract(beat)) * d : vec3(0.0);
     }
+
+    return col;
 }
 
 int TEXT_DRAW2_LEN = 5;
@@ -71,7 +75,9 @@ int TEXT_TOHU0301[] = int[](
     C_1
 );
 
-void text_cell(vec2 uv, inout vec3 col) {
+vec3 text_cell(vec2 uv) {
+    vec3 col = vec3(0);
+
     float a = 2;
 
     vec2 grid = floor(uv * a);
@@ -121,12 +127,16 @@ void text_cell(vec2 uv, inout vec3 col) {
     //     }
     // }
 
-    col += ccol * Render_Char(uv) * 1.3;
+    col += ccol * Render_Char(uv);
 
     // col *= pal(fract(beatPhase + 10 * (length(grid))));
+
+    return col;
 }
 
-void logo(vec2 uv, inout vec3 col) {
+vec3 logo(vec2 uv) {
+    vec3 col = vec3(0.0);
+
     float a = 1;
 
     vec2 grid = floor(uv * a);
@@ -147,20 +157,24 @@ void logo(vec2 uv, inout vec3 col) {
 
     if (rnd < 0.5) {
         vec4 col_tofu0301 = texture(toufu0301, uv);
-        col += 1 - col_tofu0301.rgb;
+        col += 0.9 * col_tofu0301.rgb;
     }
-    else if (rnd < 1.5) {
+    else if (rnd < 1.7) {
         vec4 col_gam0022 = texture(gam0022, uv);
-        col += col_gam0022.rgb;
+        col += 1.2 * col_gam0022.rgb;
     } else {
         vec4 texDraw = texture(draw_logo, uv);
-        col += texDraw.rgb * texDraw.a;
+        col += 1.2 * texDraw.rgb * texDraw.a;
     }
 
     // if (mod(beat, 2) < 1) col = 1 - col;
+
+    return col;
 }
 
-void print_text(vec2 uv, inout vec3 col) {
+vec3 print_text(vec2 uv) {
+    vec3 col = vec3(0);
+
     // uv *= 2;
     // uv.x += beatPhase;
     // rot(uv, beatPhase * .3);
@@ -176,7 +190,16 @@ void print_text(vec2 uv, inout vec3 col) {
         Stack_Char(TEXT_DRAW2[i]);
     }
 
-    col += Render_Char(uv) * 1.3;
+    col += Render_Char(uv);
+
+    return col;
+}
+
+vec3 print_draw_logo(vec2 uv) {
+    vec3 col = vec3(0);
+    vec4 col_draw = texture(draw_logo, uv * 0.3 + 0.5);
+    col += col_draw.rgb * col_draw.a;
+    return col;
 }
 
 void main() {
@@ -190,15 +213,17 @@ void main() {
     float id = mod(beat / 1, 2);
 
     if (id <= 1) {
-        // diamond(uv, col);
+        // col += diamond(uv);
     } else {
-        // text_cell(uv, col);
+        // col += text_cell(uv);
     }
 
-    // text_cell(uv, col);
-    // diamond(uv, col);
-    logo(uv, col);
-    // print_text(uv0, col);
+    col += 1.3 * text_cell(uv);
+    // col += 2 * diamond(uv);
+    // col += logo(uv);
+    // col += print_text(uv0);
+
+    col += 1.4 * print_draw_logo(uv);
 
     // col += saturate(cos(beat * TAU));
     // if (mod(beat, 2) < 1) col = 1 - col;

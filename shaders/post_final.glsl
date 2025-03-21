@@ -37,9 +37,9 @@ float fbm(vec2 uv) {
 #define gFlash slider_flash
 #define gFlashSpeed 30
 
-#define gGlitchIntensity 0.0
+#define gGlitchIntensity 0.004 * saturate(cos(beatTau))
 #define gXSfhitGlitch 0.005 * 0
-#define gInvertRate 0.0
+#define gInvertRate 0.
 
 float vignette(vec2 uv) {
     vec2 d = abs(uv - 0.5) * gVignetteIntensity;
@@ -49,16 +49,27 @@ float vignette(vec2 uv) {
 }
 
 vec3 invert(vec3 c, vec2 uv) {
-    if (hash12(vec2(floor(uv.y * gInvertRate * 32.0), beat)) < gInvertRate) {
+    if (hash12(vec2(floor(uv.y * 3202.0), beat)) < gInvertRate) {
         return vec3(1.0) - c;
     } else {
         return c;
     }
 }
 
-vec3 flash(vec3 c) {
-    c = mix(c, vec3(1.0), gFlash * saturate(cos(time * PI * .5 * gFlashSpeed)));
-    return c;
+vec3 flash(vec3 col) {
+    col = mix(col, vec3(1.0), gFlash * saturate(cos(time * PI * .5 * gFlashSpeed)));
+
+    if (slider_flash == 1.0) {
+        col = vec3(1.0);
+    }
+
+    return col;
+}
+
+vec3 whiteOut(vec3 col) {
+    float t = button_white_out.z;
+    col = mix(col, vec3(1), exp(-0.7 * t));
+    return col;
 }
 
 vec3 chromaticAberration(sampler2D tex, vec2 uv) {
@@ -157,6 +168,7 @@ void main() {
     // col *= vignette(uv);
     col = invert(col, uv);
     col = flash(col);
+    col = whiteOut(col);
     // col = blend(col);
 
     if (false) {
@@ -165,7 +177,7 @@ void main() {
         col = filterLaplacian(post_bloom_composite, uv, offsets);
     }
 
-    if (true) {
+    if (false) {
         float d1, d2;
         vec2 idx;
         ManhattanVoronoi2D(vec2(uv * 5.0 + floor(time) * 10.0), d1, d2, idx);
@@ -190,6 +202,9 @@ void main() {
     Stack_Char(C_colon);
     col += Render_Char(uv);
     col += Print_Number(uv, bpm, 1, 3);
+
+    // SetAlign(Align_Center_Bottom);
+    // col += Print_Number(uv, button_white_out.z, 5, 3);
 
     outColor = vec4(col, 1);
 }

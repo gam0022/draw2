@@ -34,7 +34,7 @@ vec3 getBloom(vec2 uv, float threshold) {
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
-    float threshold = 0.5;
+    float threshold = 1.1;
     vec3 col = getBloom(uv, threshold);
 
     outColor = vec4(col, 1);

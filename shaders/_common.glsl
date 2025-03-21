@@ -10,13 +10,13 @@ out vec4 outColor;
 #define slider_dark sliders[4]
 
 // buttons
+#define button_white_out buttons[8]
 #define button_tscube_scene buttons[20]
 #define button_tscube_camera buttons[21]
 
 #define button_tscube_wall buttons[24]
 #define button_tscube_wall_shader buttons[25]
 #define button_tscube_wall_warning buttons[26]
-
 
 uniform sampler2D scene2d;
 uniform sampler2D scene3d;
@@ -58,10 +58,9 @@ void initBeat() {
 
 float scene;
 
-
-
 // Hash without Sine by David Hoskins.
 // https://www.shadertoy.com/view/4djSRW
+//  1 out, 1 in...
 float hash11(float p) {
     p = fract(p * .1031);
     p *= p + 33.33;
@@ -69,34 +68,107 @@ float hash11(float p) {
     return fract(p);
 }
 
+//----------------------------------------------------------------------------------------
+//  1 out, 2 in...
 float hash12(vec2 p) {
     vec3 p3 = fract(vec3(p.xyx) * .1031);
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.x + p3.y) * p3.z);
 }
 
-vec3 hash31(float p) {
-    vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.xxy + p3.yzz) * p3.zyx);
-}
-
+//----------------------------------------------------------------------------------------
+//  1 out, 3 in...
 float hash13(vec3 p3) {
     p3 = fract(p3 * .1031);
     p3 += dot(p3, p3.zyx + 31.32);
     return fract((p3.x + p3.y) * p3.z);
 }
+//----------------------------------------------------------------------------------------
+// 1 out 4 in...
+float hash14(vec4 p4) {
+    p4 = fract(p4 * vec4(.1031, .1030, .0973, .1099));
+    p4 += dot(p4, p4.wzxy + 33.33);
+    return fract((p4.x + p4.y) * (p4.z + p4.w));
+}
 
+//----------------------------------------------------------------------------------------
+//  2 out, 1 in...
+vec2 hash21(float p) {
+    vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx + p3.yz) * p3.zy);
+}
+
+//----------------------------------------------------------------------------------------
+///  2 out, 2 in...
 vec2 hash22(vec2 p) {
     vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.xx + p3.yz) * p3.zy);
 }
 
+//----------------------------------------------------------------------------------------
+///  2 out, 3 in...
 vec2 hash23(vec3 p3) {
     p3 = fract(p3 * vec3(.1031, .1030, .0973));
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.xx + p3.yz) * p3.zy);
+}
+
+//----------------------------------------------------------------------------------------
+//  3 out, 1 in...
+vec3 hash31(float p) {
+    vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xxy + p3.yzz) * p3.zyx);
+}
+
+//----------------------------------------------------------------------------------------
+///  3 out, 2 in...
+vec3 hash32(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yxz + 33.33);
+    return fract((p3.xxy + p3.yzz) * p3.zyx);
+}
+
+//----------------------------------------------------------------------------------------
+///  3 out, 3 in...
+vec3 hash33(vec3 p3) {
+    p3 = fract(p3 * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yxz + 33.33);
+    return fract((p3.xxy + p3.yxx) * p3.zyx);
+}
+
+//----------------------------------------------------------------------------------------
+// 4 out, 1 in...
+vec4 hash41(float p) {
+    vec4 p4 = fract(vec4(p) * vec4(.1031, .1030, .0973, .1099));
+    p4 += dot(p4, p4.wzxy + 33.33);
+    return fract((p4.xxyz + p4.yzzw) * p4.zywx);
+}
+
+//----------------------------------------------------------------------------------------
+// 4 out, 2 in...
+vec4 hash42(vec2 p) {
+    vec4 p4 = fract(vec4(p.xyxy) * vec4(.1031, .1030, .0973, .1099));
+    p4 += dot(p4, p4.wzxy + 33.33);
+    return fract((p4.xxyz + p4.yzzw) * p4.zywx);
+}
+
+//----------------------------------------------------------------------------------------
+// 4 out, 3 in...
+vec4 hash43(vec3 p) {
+    vec4 p4 = fract(vec4(p.xyzx) * vec4(.1031, .1030, .0973, .1099));
+    p4 += dot(p4, p4.wzxy + 33.33);
+    return fract((p4.xxyz + p4.yzzw) * p4.zywx);
+}
+
+//----------------------------------------------------------------------------------------
+// 4 out, 4 in...
+vec4 hash44(vec4 p4) {
+    p4 = fract(p4 * vec4(.1031, .1030, .0973, .1099));
+    p4 += dot(p4, p4.wzxy + 33.33);
+    return fract((p4.xxyz + p4.yzzw) * p4.zywx);
 }
 
 float sdBox(vec3 p, vec3 b) {
