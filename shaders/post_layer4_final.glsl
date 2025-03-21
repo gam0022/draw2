@@ -88,17 +88,20 @@ vec3 drawBeat(vec2 uv) {
     uv -= vec2(1.5, 0.17);
     uv.x *= resolution.x / resolution.y;
 
+    float a = 0.25;
+    float grid = floor(uv.x / a);
+    uv.x = mod(uv.x, a) - a * 0.5;
+
     float b = mod(beat, 4);
 
-    repeat(i, 4) {
-        float d = length(uv - vec2(0.25 * i, 0)) - 0.1;
-        if (i <= b) {
+    if (grid >= 0 && grid < 4) {
+        float d = length(uv) - 0.1;
+        if (grid <= b) {
             col += smoothstep(0.01, -0.01, d);
         } else {
             col += smoothstep(0.01, -0.01, d) * smoothstep(-0.02, -0.01, d);
         }
     }
-
 
     return col;
 }
@@ -111,13 +114,16 @@ vec3 drawSpectrum(sampler1D tex, vec2 uv) {
     uv -= vec2(2.5, 0.08);
     uv.x *= resolution.x / resolution.y;
 
-    float b = mod(beat, 4);
+    float a = 0.1;
+    float grid = floor(uv.x / a);
+    uv.x = mod(uv.x, a) - a * 0.5;
 
-    int div = 48;
-    repeat(i, div) {
-        float u = float(i) / div;
-        vec4 spec = texture(tex, u);
-        float d = sdBox(uv - vec2(0.1 * i, 0.1 * spec.r), vec2(0.03, 0.1 * spec.r));
+    float div = 48;
+
+    if (grid >= 0 && grid < div) {
+        float u = float(grid + 1) / div;
+        float vol = texture(tex, u).r;
+        float d = sdBox(uv - vec2(0, 0.1 * vol), vec2(0.03, 0.1 * vol));
         col += smoothstep(0.01, -0.01, d);
     }
 
