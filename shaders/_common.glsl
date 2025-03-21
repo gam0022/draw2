@@ -24,6 +24,7 @@ uniform sampler2D transcendental_cube;
 uniform sampler2D composite;
 uniform sampler2D post_bloom_blur;
 uniform sampler2D post_bloom_composite;
+uniform sampler2D post_final;
 
 uniform sampler2D draw_logo;
 uniform sampler2D draw_logo_tokyo;

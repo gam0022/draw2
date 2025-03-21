@@ -82,11 +82,11 @@ vec3 text_cell(vec2 uv) {
 
     vec2 grid = floor(uv * a);
 
-    // if (mod(beat, 1) < 1) {
-    //     uv.y += beatPhase * floor(2 - hash11(grid.x + floor(beat)) * 4);
-    // } else {
-    //     uv.x += beatPhase * floor(2 - hash11(grid.y + floor(beat)) * 4);
-    // }
+    if (mod(beat, 1) < 1) {
+        uv.y += beatPhase * floor(2 - hash11(grid.x + floor(beat)) * 4);
+    } else {
+        uv.x += beatPhase * floor(2 - hash11(grid.y + floor(beat)) * 4);
+    }
 
     uv *= a;
     vec2 grid2 = floor(uv);

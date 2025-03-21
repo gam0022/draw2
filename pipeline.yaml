@@ -33,6 +33,14 @@ stages:
     float: true
 
   - fs: "shaders/post_final.glsl"
+    target: "post_final"
+    wrap_mode: repeat
+    float: true
+
+  - fs: "shaders/post_cyclic_noise.glsl"
+    # target: "post_final"
+    wrap_mode: repeat
+    float: true
 
 images:
   - path: "images/font_receipt_all.png"
