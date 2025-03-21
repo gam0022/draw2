@@ -24,6 +24,7 @@ out vec4 outColor;
 #define button_post_laplacian buttons[0]
 
 #define button_white_out buttons[8]
+#define button_ps_kick buttons[9]
 
 #define button_tscube_scene buttons[20]
 #define button_tscube_camera buttons[21]

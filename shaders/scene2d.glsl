@@ -217,7 +217,6 @@ void main() {
     // col += 1.3 * text_cell(uv);
     // col += logo(uv);
     // col += print_text(uv0);
-    // col += kick;
     // if (mod(beat, 2) < 1) col = 1 - col;
 
     outColor = vec4(col, 1);

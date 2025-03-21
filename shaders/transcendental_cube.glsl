@@ -358,7 +358,7 @@ void main() {
     // シーン全体
     float time_scene = button_tscube_scene.y;
     float time_ = time_scene;
-    if (button_tscube_scene.w == 1) mode = OPENING;
+    if (int(button_tscube_scene.w) == 1) mode = OPENING;
 
     // 標準壁
     float time_wall = button_tscube_wall.y;

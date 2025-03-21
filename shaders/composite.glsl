@@ -13,8 +13,12 @@ void main() {
 
     vec3 col = mix(col_2d.rgb, col_3d.rgb, slider_scene3d);
 
-    if (int(buttons[20].w) % 2 == 1) {
+    if (int(button_tscube_scene.w) % 2 == 1) {
         col = texture(transcendental_cube, uv0).rgb;
+    }
+
+    if (int(button_ps_kick.w) % 2 == 1) {
+        col += kick;
     }
 
     col = mix(col, col_prev.rgb, slider_motion_blur);
