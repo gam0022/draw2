@@ -82,28 +82,12 @@
 
 // Chars Area ------------------------------------------------------------------------------
 
-int Font_Name = 0;
-#define NAME_RECEIPT 0
-#define NAME_ORBITRON 1
 
-ivec2 TexFont_RES = ivec2(61, 61);
-int Font_Offset = 0;
-
-void SetFontName(int fontName) {
-    Font_Name = fontName;
-
-    if (Font_Name == NAME_RECEIPT) {
-        TexFont_RES = ivec2(61, 61);
-        Font_Offset = 0;
-    } else if (Font_Name == NAME_ORBITRON) {
-        TexFont_RES = ivec2(10, 10);
-        Font_Offset = 1;
-    }
-}
 
 uniform sampler2D font_receipt_all;
 uniform sampler2D font_orbitron_ascii;
 
+ivec2 TexFont_RES = ivec2(61, 61);
 #define Font_Size ivec2(52, 52)
 #define Font_Baseline ivec2(0, 0)
 #define Char_List_Max 72
@@ -111,10 +95,30 @@ int Char_List_Index = 0;
 int[Char_List_Max] Char_List;
 
 #define SPACE_F 1.0
-#define SPACE_H 0.7
+float SPACE_H  = 0.7;
 float GetSpace(int c) {
     bool isH = (0 <= c && c <= 94) || (7073 <= c && c <= 7130);
     return (isH ? SPACE_H : SPACE_F) * float(c >= 0);
+}
+
+int Font_Offset = 0;
+
+int Font_Name = 0;
+#define NAME_RECEIPT 0
+#define NAME_ORBITRON 1
+
+void SetFontName(int fontName) {
+    Font_Name = fontName;
+
+    if (Font_Name == NAME_RECEIPT) {
+        TexFont_RES = ivec2(61, 61);
+        Font_Offset = 0;
+        SPACE_H = 0.7;
+    } else if (Font_Name == NAME_ORBITRON) {
+        TexFont_RES = ivec2(10, 10);
+        Font_Offset = 1;
+        SPACE_H = 0.77;
+    }
 }
 
 int Font_Style = 0;
@@ -226,6 +230,9 @@ float Print_Char(vec2 uv, int id) {
 
     // vec4 col = isIn ? texture(TexFont, uv3) : vec4(0);
     vec4 col = vec4(0);
+
+    // うろうろ
+    uv3.y = (uv3.y + pow(saturate(sin(beatTau / 4 + id * 0.2)), 4) * (mod(phase(beat / 4 + sin(hash11(id + beatPhase * 0.001))), 16) - 8) / TexFont_RES.y);
 
     if (isIn) {
         if (Font_Name == NAME_RECEIPT) {

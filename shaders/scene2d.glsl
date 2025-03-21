@@ -40,7 +40,6 @@ void diamond(vec2 uv, inout vec3 col) {
 }
 
 int TEXT_DRAW2_LEN = 5;
-
 int TEXT_DRAW2[] = int[](
     C_D,
     C_R,
@@ -49,16 +48,39 @@ int TEXT_DRAW2[] = int[](
     C_2
 );
 
+int TEXT_GAM0022_LEN = 7;
+int TEXT_GAM0022[] = int[](
+    C_G,
+    C_A,
+    C_M,
+    C_0,
+    C_0,
+    C_2,
+    C_2
+);
+
+int TEXT_TOHU0301_LEN = 8;
+int TEXT_TOHU0301[] = int[](
+    C_T,
+    C_O,
+    C_F,
+    C_U,
+    C_0,
+    C_3,
+    C_0,
+    C_1
+);
+
 void text_cell(vec2 uv, inout vec3 col) {
     float a = 2;
 
     vec2 grid = floor(uv * a);
 
-    if (mod(beat, 2) < 1) {
-        uv.y += beatPhase * floor(2 - hash11(grid.x + floor(beat)) * 4);
-    } else {
-        uv.x += beatPhase * floor(2 - hash11(grid.y + floor(beat)) * 4);
-    }
+    // if (mod(beat, 1) < 1) {
+    //     uv.y += beatPhase * floor(2 - hash11(grid.x + floor(beat)) * 4);
+    // } else {
+    //     uv.x += beatPhase * floor(2 - hash11(grid.y + floor(beat)) * 4);
+    // }
 
     uv *= a;
     vec2 grid2 = floor(uv);
@@ -70,26 +92,41 @@ void text_cell(vec2 uv, inout vec3 col) {
     // SetFontName(NAME_ORBITRON);
     SetFontStyle(STYLE_NORMAL);
     float rnd = hash12(grid2 + beatPhase * 0.0001);
-    int code = C_0 + int((C_Z - C_0) * rnd);
+    int code = C_0 + int((C_Z + - C_0) * rnd);
 
     // code = TEXT_DRAW2[int(beat + grid2.y + 2 + grid2.x) % TEXT_DRAW2_LEN];
 
     Stack_Char(code);
-    col += Render_Char(uv) * 1.3;
+
+    vec3 ccol = vec3(1);
 
     for(int i = 0; i < TEXT_DRAW2_LEN; i++) {
         if (code == TEXT_DRAW2[i]) {
-            col *= vec3(1, 0, 1);
+            ccol *= vec3(1, 0, 1);
             break;
         }
     }
+
+    // for(int i = 0; i < TEXT_GAM0022_LEN; i++) {
+    //     if (code == TEXT_GAM0022[i]) {
+    //         ccol *= vec3(0, 0, 1);
+    //         break;
+    //     }
+    // }
+
+    // for(int i = 0; i < TEXT_TOHU0301_LEN; i++) {
+    //     if (code == TEXT_TOHU0301[i]) {
+    //         ccol *= vec3(0, 1, 0);
+    //         break;
+    //     }
+    // }
+
+    col += ccol * Render_Char(uv) * 1.3;
 
     // col *= pal(fract(beatPhase + 10 * (length(grid))));
 }
 
 void logo(vec2 uv, inout vec3 col) {
-    // vec2 p = uv * 0.8 + 0.5;
-
     float a = 1;
 
     vec2 grid = floor(uv * a);
@@ -123,6 +160,25 @@ void logo(vec2 uv, inout vec3 col) {
     // if (mod(beat, 2) < 1) col = 1 - col;
 }
 
+void print_text(vec2 uv, inout vec3 col) {
+    // uv *= 2;
+    // uv.x += beatPhase;
+    // rot(uv, beatPhase * .3);
+    uv = fract(uv);
+    SetAspect(resolution.xy, 4, true, true);
+    SetAlign(Align_Center_Center);
+    // SetFontName(NAME_RECEIPT);
+    SetFontName(NAME_ORBITRON);
+    SetFontStyle(STYLE_NORMAL);
+    // SetFontStyle(int(beat) % 6);
+
+    for(int i = 0; i < TEXT_DRAW2_LEN; i++) {
+        Stack_Char(TEXT_DRAW2[i]);
+    }
+
+    col += Render_Char(uv) * 1.3;
+}
+
 void main() {
     vec2 uv = (2. * gl_FragCoord.xy - resolution.xy) / resolution.y;
     vec2 uv0 = gl_FragCoord.xy / resolution.xy;
@@ -141,9 +197,11 @@ void main() {
 
     // text_cell(uv, col);
     // diamond(uv, col);
-    logo(uv, col);
+    // logo(uv, col);
+    print_text(uv0, col);
 
     // col += saturate(cos(beat * TAU));
+    // if (mod(beat, 2) < 1) col = 1 - col;
 
     outColor = vec4(col, 1);
 }
