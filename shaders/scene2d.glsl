@@ -35,7 +35,7 @@ void diamond(vec2 uv, inout vec3 col) {
         float c = ary[int(b)];
         // c = hash12(grid + 32 * floor(beat)) * 10.;
         float d = saturate(cos(beat * TAU - c * TAU / 15));
-        col += sdBox(p, vec2(0.45 * d)) < 0.0 ? pal(fract(beat)) * d : vec3(0.0);
+        col += sdBox(p, vec2(0.45 * d)) < 0.0 ? 2 * pal(fract(beat)) * d : vec3(0.0);
     }
 }
 
@@ -50,7 +50,7 @@ int TEXT_DRAW2[] = int[](
 );
 
 void text_cell(vec2 uv, inout vec3 col) {
-    float a = 4;
+    float a = 2;
 
     vec2 grid = floor(uv * a);
 
@@ -74,7 +74,7 @@ void text_cell(vec2 uv, inout vec3 col) {
     // code = TEXT_DRAW2[int(beat + grid.y + 2 + grid.x) % TEXT_DRAW2_LEN];
 
     Stack_Char(code);
-    col += Render_Char(uv);
+    col += Render_Char(uv) * 1.3;
 
     for(int i = 0; i < TEXT_DRAW2_LEN; i++) {
         if (code == TEXT_DRAW2[i]) {
@@ -94,16 +94,16 @@ void main() {
 
     vec3 col = vec3(0);
 
-    float id = mod(beat / 2, 2);
+    float id = mod(beat / 1, 2);
 
     if (id <= 1) {
         diamond(uv, col);
     } else {
-        text_cell(uv, col);
+        // text_cell(uv, col);
     }
 
     text_cell(uv, col);
-    diamond(uv, col);
+    // diamond(uv, col);
 
     // col += saturate(cos(beat * TAU));
 

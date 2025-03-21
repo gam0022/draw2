@@ -122,8 +122,11 @@ void main() {
     col = flash(col);
     // col = blend(col);
 
+    col = mix(col, vec3(0), slider_dark);
+
     // if (mod(beat, 2) < 1) col = invertPattern(col, uv);
 
+    // BPM
     SetAspect(resolution.xy, 25, true, true);
     SetAlign(Align_Left_Bottom);
     SetFontName(NAME_ORBITRON);

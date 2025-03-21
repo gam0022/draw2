@@ -2,11 +2,24 @@ out vec4 outColor;
 
 #pragma include "shaders/_uniforms.glsl"
 
+// sliders
+#define slider_motion_blur sliders[0]
+#define slider_scene3d sliders[1]
+#define slider_flash sliders[2]
+#define slider_bpm_scale sliders[3]
+#define slider_dark sliders[4]
+
+// buttons
+#define button_tscube_scene buttons[20]
+#define button_tscube_wall buttons[21]
+#define button_tscube_wall_shader buttons[22]
+#define button_tscube_camera buttons[24]
+
+
 uniform sampler2D scene2d;
 uniform sampler2D scene3d;
 uniform sampler2D transcendental_cube;
 uniform sampler2D composite;
-
 uniform sampler2D post_bloom_blur;
 uniform sampler2D post_bloom_composite;
 
@@ -26,6 +39,10 @@ void initBeat() {
 
     bpm = 128;
     bpm = (lsb * 127) + (msb * 127) * 128;
+
+    float scale = 1 + floor(slider_bpm_scale * 4);
+    bpm *= scale;
+
     beat = time * bpm / 60.0;
     beatTau = beat * TAU;
     beatPhase = phase(beat);
@@ -33,11 +50,7 @@ void initBeat() {
 
 float scene;
 
-// sliders
-#define slider_motion_blur sliders[0]
-#define slider_scene3d sliders[1]
-#define slider_flash sliders[2]
-#define slider_bpm_scale sliders[3]
+
 
 // Hash without Sine by David Hoskins.
 // https://www.shadertoy.com/view/4djSRW

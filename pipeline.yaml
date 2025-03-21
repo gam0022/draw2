@@ -2,10 +2,12 @@ stages:
   - fs: "shaders/scene2d.glsl"
     target: "scene2d"
     wrap_mode: repeat
+    float: true
 
   - fs: "shaders/scene3d.glsl"
     target: "scene3d"
     wrap_mode: repeat
+    float: true
 
   - fs: "shaders/transcendental_cube.glsl"
     # resolution: [640, 360]
@@ -17,15 +19,18 @@ stages:
   - fs: "shaders/composite.glsl"
     target: "composite"
     wrap_mode: repeat
+    float: true
 
   - fs: "shaders/post_bloom_blur.glsl"
     resolution: [640, 360]
     target: "post_bloom_blur"
     wrap_mode: repeat
+    float: true
 
   - fs: "shaders/post_bloom_composite.glsl"
     target: "post_bloom_composite"
     wrap_mode: repeat
+    float: true
 
   - fs: "shaders/post_final.glsl"
 

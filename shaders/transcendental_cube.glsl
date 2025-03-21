@@ -21,11 +21,12 @@ float fov;
 vec3 scol;
 vec3 boxPos;
 
-// mode
+// Mode
 int mode = 0;
-#define OPENING 0
-#define WALL 1
-#define WALL_SHADER 2
+#define NORMAL 0
+#define OPENING 1
+#define WALL 2
+#define WALL_SHADER 3
 
 // Timeline
 float prevEndTime = 0., t = 0.;
@@ -134,37 +135,40 @@ vec4 map(vec3 pos, bool isFull) {
 
     vec4 _IFS_Rot = vec4(0.34 + beatPhase / 2.3, -0.28, 0.03, 0.);
     vec4 _IFS_Offset = vec4(1.36, 0.06, 0.69, 1.);
-    float _IFS_Iteration = phase(tri(beat / 16.) + 3.);
+    float _IFS_Iteration = phase(tri(beat / 16.) + 3. + (sliders[13] * 3.));
     vec4 _IFS_BoxBase = vec4(1, 1, 1, 0);
     vec4 _IFS_BoxEmissive = vec4(0.05, 1.05, 1.05, 0);
 
     float hue = 0.5;
     // hue = fract(.12 * beatPhase);
     // hue = fract(beatPhase * .1 + pos.z) + 1.;
-    // hue = 0.0;
 
-    // _IFS_Rot = vec4(
-    //     .3 + .1 * sin(beatPhase * TAU / 8.),
-    //     .9 + .1 * sin(beatPhase * TAU / 8.),
-    //     .4 + .0 * sin(beatPhase * TAU / 8.),
-    //     0.);
-    _IFS_Rot = vec4(.3 + sliders[13] * sin(beatPhase * TAU / 8.),
-                    .9 + sliders[14] * sin(beatPhase * TAU / 8.),
-                    .4 + sliders[15] * sin(beatPhase * TAU / 8.), 0.);
-    // _IFS_Offset = vec4(1.4, 0.66, 1.2, 1.);
-
-    _IFS_Offset = vec4(2., 0.3, 0.3 + 0.1 * sin(beatTau / 8.), 1.);
-    _IFS_Rot = vec4(0.4 + phase(beat) / 2.3, -0.28 + phase(beat) / 2., 0.05, 0.);
-
-    _IFS_Offset = vec4(4. * sliders[5], 4. * sliders[6], 4. * sliders[7], 1.);
+    // スライダー
+    _IFS_Offset = vec4(2. * sliders[5], 2. * sliders[6], 0.69, 1.);
 
     bool emi2 = false;
+    // emi2 = true;
+
+    // Warning
+    int wall_id = int(button_tscube_wall.w) % 6;
+    if (mode == WALL && wall_id == 2) {
+        hue = 0.0;
+        // _IFS_Iteration = phase(tri(beat / 16.) + 3);
+        emi2 = true;
+        _IFS_Rot = vec4(.3 + .1 * sin(beatPhase * TAU / 8.), .9 + .1 * sin(beatPhase * TAU / 8.), .4, 0.);
+        _IFS_Offset = vec4(1.4, 0.66, 1.2, 1.);
+    }
 
     if (boxPos.y < 0.) {
         _IFS_Rot *= 0.;
         _IFS_Offset *= 0.;
         _IFS_Iteration = 1.;
     }
+
+    // 減衰
+    float atten = 1 - sliders[7];
+    _IFS_Offset *= atten;
+    _IFS_Iteration = mix(1, _IFS_Iteration, atten);
 
     if (mode == OPENING) {
         TL(40.) {
@@ -203,17 +207,23 @@ vec4 map(vec3 pos, bool isFull) {
 
     m = mix(mp, m, fract(_IFS_Iteration));
 
+    float emi = 0;
+    hue = 10.;
+
     // room
     vec3 p2 = abs(pos);
     float hole = sdBox(pos - vec3(0., -H - 0.5, 0.), vec3(1.1) * smoothstep(18., 24., beat));
 
     // floor and ceil
-    opUnion(m, max(sdBox(p2 - vec3(0, H + 4., 0), vec3(W, 4., D)), -hole), SOL, roughness, 10.);
+    // emi = texture(scene2d, pos.xz / W + 0.5).r * 2.;
+    // hue = fract(beatPhase * 0.1);
+    opUnion(m, max(sdBox(p2 - vec3(0, H + 4., 0), vec3(W, 4., D)), -hole), SOL, roughness + emi * 2., hue);
 
     // door
-    float emi = step(p2.x, 2.) * step(p2.y, 2.);
+    emi = step(p2.x, 2.) * step(p2.y, 2.);
     // if (mod(beat, 2.) < 1.) emi = 1. - emi;
-    opUnion(m, sdBox(p2 - vec3(0, 0, D + a), vec3(W, H, a)), SOL, roughness + emi * 2., 10.0);
+    // emi = texture(scene2d, pos.xy / W + 0.5).r;
+    opUnion(m, sdBox(p2 - vec3(0, 0, D + a), vec3(W, H, a)), SOL, roughness + emi * 2., hue);
 
     // wall
     if (isFull) {
@@ -228,8 +238,6 @@ vec4 map(vec3 pos, bool isFull) {
                 emi = step(1., mod(id, 2.));
             }
         } else if (mode == WALL) {
-            int wall_id = int(buttons[21].w) % 6;
-
             if (wall_id == 0) {
             } else if (wall_id == 1) {
                 emi = mix(emi, step(.5, hash12(floor(pos.yz) + 123.23 * floor(beat * 2.))),
@@ -266,13 +274,13 @@ vec4 map(vec3 pos, bool isFull) {
                 hue = mix(hue, 10., fade2);
             }
         } else if (mode == WALL_SHADER) {
-            vec4 tex = texture(scene2d, fract(pos.zy / 16. + 0.5));
+            vec4 tex = texture(scene2d, fract(pos.zy / W + 0.5));
             emi = dot(vec3(0.5), tex.rgb) * smoothstep(1, 3, beat);
             hue = hash13(tex.rgb) * 0.6;
         }
     }
 
-    opUnion(m, sdBox(p2 - vec3(W + a, 0, 0), vec3(a, H, D)), SOL, roughness + emi * 2., hue);
+    opUnion(m, sdBox(p2 - vec3(W + a, 0, 0), vec3(a, H, D)), SOL, roughness + atten * emi * 2., hue);
 
     return m;
 }
@@ -331,25 +339,25 @@ void main() {
     initBeat();
 
     // シーン全体をスキップ
-    if (int(buttons[20].w) % 2 == 0) {
+    if (int(button_tscube_scene.w) % 2 == 0) {
         outColor = vec4(0, 0, 0, 1);
         return;
     }
 
     // シーン全体
-    float time_scene = buttons[20].y;
+    float time_scene = button_tscube_scene.y;
     float time_ = time_scene;
-    mode = OPENING;
+    if (button_tscube_scene.w == 1) mode = OPENING;
 
     // 標準壁
-    float time_wall = buttons[21].y;
+    float time_wall = button_tscube_wall.y;
     if (time_wall < time_) {
         time_ = time_wall;
         mode = WALL;
     }
 
     // 壁シェーダー
-    float time_wall_shader = buttons[22].y;
+    float time_wall_shader = button_tscube_wall_shader.y;
     if (time_wall_shader < time_) {
         time_ = time_wall_shader;
         mode = WALL_SHADER;
@@ -376,15 +384,19 @@ void main() {
 
     // 通常時カメラ
     float dice = hash11(floor(beat / 8. + 2.) * 123.);
-    if (dice < .8)
-        ro = vec3(8. * cos(beatTau / 128.), mix(-6., 6., dice), 8. * sin(beatTau / 128.));
-    else
+    if (dice < .8) {
+        float r = 8;
+        ro = vec3(r * cos(beatTau / 128.), mix(-6., 6., dice), r * sin(beatTau / 128.));
+    } else {
         ro = vec3(9.5 - dice * 20., 1., -12.3);
+    }
 
     // 激しいカメラワーク
-    dice = hash11(floor(beat / 2) * 123.);
-    float rot = phase(beat) * TAU / 3 * sign(dice - 0.5);
-    // ro = vec3(8. * cos(rot), mix(-6., 6., dice), 8. * sin(rot));
+    if (int(button_tscube_camera.w) % 2 == 1) {
+        dice = hash11(floor(beat / 2) * 123.);
+        float rot = phase(beat) * TAU / 3 * sign(dice - 0.5);
+        ro = vec3(8. * cos(rot), mix(-6., 6., dice), 8. * sin(rot));
+    }
 
     if (mode == OPENING) {
         TL(8.) {
@@ -439,9 +451,7 @@ void main() {
     vec3 bufa = texture(transcendental_cube, uv).xyz;
     outColor = saturate(vec4(0.7 * scol + 0.7 * bufa, 1.));
 
-    // outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
-    //                    PrintValue(gl_FragCoord.xy, grid(29, 3), fontSize, beat, 1.0, 3.0));
-    // outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1),
-    //                    PrintValue(gl_FragCoord.xy, grid(14, 3), fontSize, buttons[21].w, 1.0, 1.0));
+    // outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(29, 1), fontSize, beat, 1.0, 3.0));
+    // outColor.rgb = mix(outColor.rgb, vec3(1, 1, 1), PrintValue(gl_FragCoord.xy, grid(14, 1), fontSize, buttons[24].w, 1.0, 1.0));
 #endif
 }
