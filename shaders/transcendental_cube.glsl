@@ -220,7 +220,7 @@ vec4 map(vec3 pos, bool isFull) {
     // floor and ceil
     uv = (pos.xz) / (H * 2) + 0.5;
     // uv.x /= resolution.x / resolution.y;
-    // emi = texture(scene2d, uv).r * 2.;
+    // emi = atten * texture(scene2d, uv).r * 2.;
     // hue = fract(beatPhase * 0.1);
     opUnion(m, max(sdBox(p2 - vec3(0, H + 4., 0), vec3(W, 4., D)), -hole), SOL, roughness + emi * 2., hue);
 
@@ -229,7 +229,7 @@ vec4 map(vec3 pos, bool isFull) {
     // if (mod(beat, 2.) < 1.) emi = 1. - emi;
     uv = (pos.xy) / (H * 2) + 0.5;
     uv.x /= resolution.x / resolution.y;
-    // emi = texture(scene3d, uv).r;
+    // emi = atten * texture(scene3d, uv).r;
     opUnion(m, sdBox(p2 - vec3(0, 0, D + a), vec3(W, H, a)), SOL, roughness + emi * 2., hue);
 
     // wall
@@ -278,7 +278,7 @@ vec4 map(vec3 pos, bool isFull) {
             uv = (pos.zy) / (H * 2) + 0.5;
             uv.x /= resolution.x / resolution.y;
             vec4 tex = texture(scene2d, fract(uv));
-            emi = dot(vec3(0.5), tex.rgb) * smoothstep(1, 3, beat);
+            emi = atten * dot(vec3(0.5), tex.rgb) * smoothstep(1, 3, beat);
             hue = hash13(tex.rgb) * 0.6;
         } else if (mode == WALL_WARNING) {
             hue = 0.;
