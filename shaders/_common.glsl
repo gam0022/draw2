@@ -66,7 +66,7 @@ void initBeat() {
     bpm = 128;
     bpm = (lsb * 127) + (msb * 127) * 128;
 
-    float scale = 1 + floor(slider_bpm_scale * 4);
+    float scale = 1 + floor(slider_bpm_scale * 8);
     bpm *= scale;
 
     beat = time * bpm / 60.0;

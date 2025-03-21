@@ -212,20 +212,12 @@ void main() {
 
     float id = mod(beat / 1, 2);
 
-    if (id <= 1) {
-        // col += diamond(uv);
-    } else {
-        // col += text_cell(uv);
-    }
-
-    // col += 1.3 * text_cell(uv);
+    col += 1.4 * print_draw_logo(uv);
     // col += 2 * diamond(uv);
+    // col += 1.3 * text_cell(uv);
     // col += logo(uv);
     // col += print_text(uv0);
-
-    col += 1.4 * print_draw_logo(uv);
-
-    // col += saturate(cos(beat * TAU));
+    // col += kick;
     // if (mod(beat, 2) < 1) col = 1 - col;
 
     outColor = vec4(col, 1);

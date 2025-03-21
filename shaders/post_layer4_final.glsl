@@ -63,6 +63,46 @@ vec3 invertPattern(vec3 col, vec2 uv) {
     return mix(col, saturate(1 - col), texture(scene2d, uv).r);
 }
 
+vec3 drawBPM(vec2 uv) {
+    vec3 col = vec3(0);
+
+    SetAspect(resolution.xy, 25, true, true);
+    SetAlign(Align_Left_Bottom);
+    SetFontName(NAME_ORBITRON);
+    SetFontStyle(STYLE_NORMAL);
+    Stack_Char(C_B);
+    Stack_Char(C_P);
+    Stack_Char(C_M);
+    Stack_Char(C_colon);
+    col += Render_Char(uv);
+    col += Print_Number(uv, bpm, 1, 3);
+
+    return col;
+}
+
+vec3 drawBeat(vec2 uv) {
+    vec3 col = vec3(0);
+
+    uv *= 8;
+
+    uv -= vec2(1.5, 0.16);
+    uv.x *= resolution.x / resolution.y;
+
+    float b = mod(beat, 4);
+
+    repeat(i, 4) {
+        float d = length(uv - vec2(0.25 * i, 0)) - 0.1;
+        if (i <= b) {
+            col += smoothstep(0.01, -0.01, d);
+        } else {
+            col += smoothstep(0.01, -0.01, d) * smoothstep(-0.02, -0.01, d);
+        }
+    }
+
+
+    return col;
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
@@ -81,18 +121,9 @@ void main() {
 
     // if (mod(beat, 2) < 1) col = invertPattern(col, uv);
 
-    // BPM
-    SetAspect(resolution.xy, 25, true, true);
-    SetAlign(Align_Left_Bottom);
-    SetFontName(NAME_ORBITRON);
-    SetFontStyle(STYLE_NORMAL);
-    Stack_Char(C_B);
-    Stack_Char(C_P);
-    Stack_Char(C_M);
-    Stack_Char(C_colon);
-    col += Render_Char(uv);
-    col += Print_Number(uv, bpm, 1, 3);
 
+    col += drawBPM(uv);
+    col += drawBeat(uv);
     // SetAlign(Align_Center_Bottom);
     // col += Print_Number(uv, button_white_out.z, 5, 3);
 
