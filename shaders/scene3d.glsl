@@ -48,7 +48,9 @@ vec4 map(vec3 pos) {
     // e = saturate(cos(beatTau - TAU * pos.z / 64));
     // U(m, sdBox(p, vec3(1, 0.5, 0.1)) / s, SOL, 1, 10);
     U(m, (length(p) - 0.5) / s, SOL, 1, 10);
-    // U(m, sdBox(p, vec3(1.1, 0.51, 0.01)) / s, VOL, 4 * e, floor(mod(beat, 2)) * fract(pos.z));
+    float h = 0.0;
+    // h += floor(mod(beat, 2)) * fract(pos.z);
+    // U(m, sdBox(p, vec3(1.1, 0.51, 0.01)) / s, VOL, 4 * e, h);
 
     return m;
 }
