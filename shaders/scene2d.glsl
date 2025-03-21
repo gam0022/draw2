@@ -21,8 +21,8 @@ vec3 diamond(vec2 uv) {
     vec2 abs_grid = abs(grid);
 
     float w = 2;
-    if (mod(beat, 4) > 3) w += 1;
-    if (mod(beat, 8) > 7) w += 6;
+    // if (mod(beat, 4) > 3) w += 1;
+    // if (mod(beat, 8) > 7) w += 6;
 
     if (abs_grid.x <= w && abs_grid.y <= w) {
         float a = 1;
@@ -34,10 +34,13 @@ vec3 diamond(vec2 uv) {
             hash12(grid + 32 * floor(beat)) * 10.
         );
 
-        float b = mod(beat / 2, 4.);
+        float b = mod(beat / 2, 1.); //
         float c = ary[int(b)];
         float d = saturate(cos(beat * TAU - c * TAU / 20));
-        col += sdBox(p, vec2(0.45 * d)) < 0.0 ? pal(fract(beat)) * d : vec3(0.0);
+        vec3 e = vec3(1.0);
+        // e = pal(hash12(abs_grid * 10.));
+        // e = pal(fract(beat));
+        col += sdBox(p, vec2(0.45 * d)) < 0.0 ? e * d : vec3(0.0);
     }
 
     return col;
@@ -83,9 +86,9 @@ vec3 text_cell(vec2 uv) {
     vec2 grid = floor(uv * a);
 
     if (mod(beat, 1) < 1) {
-        uv.y += beatPhase * floor(2 - hash11(grid.x + floor(beat)) * 4);
+        // uv.y += beatPhase * floor(2 - hash11(grid.x + floor(beat)) * 4);
     } else {
-        uv.x += beatPhase * floor(2 - hash11(grid.y + floor(beat)) * 4);
+        // uv.x += beatPhase * floor(2 - hash11(grid.y + floor(beat)) * 4);
     }
 
     uv *= a;
@@ -103,31 +106,28 @@ vec3 text_cell(vec2 uv) {
     // code = TEXT_DRAW2[int(beat + grid2.y + 2 + grid2.x) % TEXT_DRAW2_LEN];
 
     Stack_Char(code);
-
-    vec3 ccol = vec3(1);
+    col += Render_Char(uv);
 
     for(int i = 0; i < TEXT_DRAW2_LEN; i++) {
         if (code == TEXT_DRAW2[i]) {
-            ccol *= vec3(1, 0, 1);
+            // col *= vec3(1, 0, 1);
             break;
         }
     }
 
-    // for(int i = 0; i < TEXT_GAM0022_LEN; i++) {
-    //     if (code == TEXT_GAM0022[i]) {
-    //         ccol *= vec3(0, 0, 1);
-    //         break;
-    //     }
-    // }
+    for(int i = 0; i < TEXT_GAM0022_LEN; i++) {
+        if (code == TEXT_GAM0022[i]) {
+            // col *= vec3(0, 0, 1);
+            break;
+        }
+    }
 
-    // for(int i = 0; i < TEXT_TOHU0301_LEN; i++) {
-    //     if (code == TEXT_TOHU0301[i]) {
-    //         ccol *= vec3(0, 1, 0);
-    //         break;
-    //     }
-    // }
-
-    col += ccol * Render_Char(uv);
+    for(int i = 0; i < TEXT_TOHU0301_LEN; i++) {
+        if (code == TEXT_TOHU0301[i]) {
+            // col *= vec3(0, 1, 0);
+            break;
+        }
+    }
 
     // col *= pal(fract(beatPhase + 10 * (length(grid))));
 
@@ -213,7 +213,7 @@ void main() {
     float id = mod(beat / 1, 2);
 
     col += 1.4 * print_draw_logo(uv);
-    // col += 2 * diamond(uv);
+    // col += 1.5 * diamond(uv);
     // col += 1.3 * text_cell(uv);
     // col += logo(uv);
     // col += print_text(uv0);

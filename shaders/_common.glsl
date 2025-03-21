@@ -75,8 +75,6 @@ void initBeat() {
     kick = saturate(cos(beatTau));
 }
 
-float scene;
-
 // Hash without Sine by David Hoskins.
 // https://www.shadertoy.com/view/4djSRW
 //  1 out, 1 in...

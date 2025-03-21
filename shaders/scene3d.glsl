@@ -30,12 +30,12 @@ vec4 map(vec3 pos) {
     vec3 of = vec3(0.9, 0.0, 0.1);
     float s = 1;
     // rot(p.xy, pos.z * 0.2);
-    p.y -= cos(pos.z * TAU / 32) * 0.3;
+    // p.y -= cos(pos.z * TAU / 32) * 0.3;
     p = mod(p, a) - 0.5 * a;
-    p -= of;
-    for (int i = 0; i < 3; i++) {
+    // p -= of;
+    for (int i = 0; i < 0; i++) {
         p = abs(p + of) - of;
-        U(m, sdBox(p, vec3(0.4, 0.1, 0.1)), VOL, kick, 0.4);
+        // U(m, sdBox(p, vec3(0.4, 0.1, 0.1)), VOL, kick, 0.4);
         rot(p.xz, TAU * 0.1 + cos(pos.z / 4));
         if (mod(beat, 2) < 1) rot(p.xy, TAU * 0.1 * beatPhase);
     }
@@ -45,8 +45,9 @@ vec4 map(vec3 pos) {
     p *= scale;
 
     float e = saturate(cos(beatTau - TAU * pos.z / 64));
-    U(m, sdBox(p, vec3(1, 0.5, 0.1)) / s, SOL, 1, 10);
-    U(m, sdBox(p, vec3(1.1, 0.51, 0.01)) / s, VOL, 4 * e, floor(mod(beat, 2)) * fract(pos.z));
+    // U(m, sdBox(p, vec3(1, 0.5, 0.1)) / s, SOL, 1, 10);
+    U(m, (length(p) - 0.5) / s, SOL, 1, 10);
+    // U(m, sdBox(p, vec3(1.1, 0.51, 0.01)) / s, VOL, 4 * e, floor(mod(beat, 2)) * fract(pos.z));
 
     return m;
 }
@@ -62,8 +63,8 @@ vec3 render(vec3 ro, vec3 rd) {
             t += d * 0.5;
             if (d < t * 0.001) {
                 vec3 n = normal(p);
-                // col += saturate(dot(n, normalize(vec3(1, 1, -1))));
-                col += evalLight(p, n, -rd, normalize(vec3(1, 1, -1)), vec3(1), 0.7, 0.5) * pal(m.w) * m.z;
+                col += saturate(dot(n, normalize(vec3(1, 1, -1))));
+                // col += evalLight(p, n, -rd, normalize(vec3(1, 1, -1)), vec3(1), 0.7, 0.5) * pal(m.w) * m.z;
                 break;
             }
         } else {
@@ -82,10 +83,10 @@ void main() {
     initBeat();
 
     float len = 4.;
-    scene = floor(mod(beat, len * 4) / len);
+    float scene = floor(mod(beat, len * 4) / len);
 
     vec3 ro = vec3(0, 0, -1);
-    ro = vec3(0, 0, beatPhase);
+    ro = vec3(0, 0, beat);
     float fl = 1;
     vec3 rd = vec3(uv, fl);
     rd = normalize(rd);
