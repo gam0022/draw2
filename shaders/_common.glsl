@@ -8,14 +8,23 @@ out vec4 outColor;
 #define slider_flash sliders[2]
 #define slider_bpm_scale sliders[3]
 #define slider_dark sliders[4]
+#define slider_tscube_pram_x sliders[5]
+#define slider_tscube_pram_y sliders[6]
+#define slider_tscube_silence sliders[7]
 
-#define slider_ca_cyclic sliders[8]
-#define slider_ca_glitch sliders[9]
-#define slider_ca_xshift sliders[10]
+#define slider_ca_lens sliders[8]
+#define slider_ca_cyclic sliders[9]
+#define slider_ca_voronoi sliders[10]
+#define slider_ca_glitch sliders[11]
+#define slider_ca_xshift sliders[12]
+#define slider_ps_invert sliders[13]
 
 
 // buttons
+#define button_post_laplacian buttons[0]
+
 #define button_white_out buttons[8]
+
 #define button_tscube_scene buttons[20]
 #define button_tscube_camera buttons[21]
 
@@ -47,6 +56,7 @@ uniform sampler2D toufu0301_full;
 #define repeat(i, n) for (int i = 0; i < (n); i++)
 
 float bpm, beat, beatTau, beatPhase;
+float kick;
 
 void initBeat() {
     // 7bitずつ分けてBPMを受け取る
@@ -62,6 +72,7 @@ void initBeat() {
     beat = time * bpm / 60.0;
     beatTau = beat * TAU;
     beatPhase = phase(beat);
+    kick = saturate(cos(beatTau));
 }
 
 float scene;

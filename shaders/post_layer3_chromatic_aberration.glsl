@@ -75,11 +75,35 @@ float fbm(vec2 uv) {
     return f;
 }
 
+float Manhattan2D(vec2 p) { return abs(p.x) + abs(p.y); }
+
+void ManhattanVoronoi2D(vec2 p, inout float d1, inout float d2, inout vec2 idx) {
+    vec2 cellPos = floor(p);
+    vec2 localPos = p - cellPos;
+    d1 = 100.0;
+
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            vec2 cellOffset = vec2(i, j);
+            vec2 pointPosition = cellOffset + hash22(cellPos + cellOffset);
+
+            float dist = Manhattan2D(localPos - pointPosition);
+
+            if (dist < d1) {
+                d2 = d1;
+                d1 = dist;
+                idx = cellPos + cellOffset;
+            } else if (dist < d2) {
+                d2 = dist;
+            }
+        }
+    }
+}
+
 // https://www.shadertoy.com/view/4tlyD8
 vec3 chromaticAberration(sampler2D tex, vec2 uv, vec2 direction) {
-    int sampleCount = 50;
+    int sampleCount = 20;
     float blur = 0.3;
-    float falloff = 3.0;
 
     vec2 velocity = direction * blur;
     float inverseSampleCount = 1.0 / float(sampleCount);
@@ -94,10 +118,9 @@ vec3 chromaticAberration(sampler2D tex, vec2 uv, vec2 direction) {
     mat3x2 offsets = mat3x2(0);
 
     for (int i = 0; i < sampleCount; i++) {
-        acc.r += texture(tex, uv + offsets[0]).r;
-        acc.g += texture(tex, uv + offsets[1]).g;
-        acc.b += texture(tex, uv + offsets[2]).b;
-
+        acc.r += texture(tex, saturate(uv + offsets[0])).r;
+        acc.g += texture(tex, saturate(uv + offsets[1])).g;
+        acc.b += texture(tex, saturate(uv + offsets[2])).b;
         offsets -= increments;
     }
 
@@ -108,28 +131,51 @@ void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
     initBeat();
+    vec2 direction = vec2(0.0);
 
-    // 画面端
-    vec2 direction = (uv - 0.5) * 0.05;
+    // Lens Distortion
+    if (slider_ca_lens > 0.0) {
+        vec2 diff = uv - 0.5;
+        uv = diff * mix(1.0, 0.8, slider_ca_lens) + 0.5;
+        direction += slider_ca_lens * pow(length(diff), 10) * diff * 100;
+    }
 
     // Cyclic Noise
-    float cnoise = cyclicNoise(vec3(uv * 3., beat)) - 0.5;
-    direction += slider_ca_cyclic * vec2(cos(cnoise * TAU), sin(cnoise * TAU)) * cnoise;
+    if (slider_ca_cyclic > 0.0) {
+        float cnoise = cyclicNoise(vec3(uv * 3., beat)) - 0.5;
+        direction += slider_ca_cyclic * vec2(cos(cnoise * TAU), sin(cnoise * TAU)) * cnoise;
+    }
+
+    // Voronoi
+    if (slider_ca_voronoi > 0.0) {
+        float d1, d2;
+        vec2 idx;
+        ManhattanVoronoi2D(vec2(uv * 2.0 + beatPhase + hash21(floor(beat))), d1, d2, idx);
+        vec2 velo = hash22(idx + vec2(100.0)) - 0.5;
+        // rot(uv, velo.x)
+        direction += slider_ca_voronoi * velo;
+    }
 
     // Glitch
     // https://www.shadertoy.com/view/M32cRc
-    vec2 p = uv;
-    float amp = 1;
-    repeat(i, 5) {
-        vec2 cell = floor(p / vec2(0.2, .05) / amp);
-        vec3 rnd = hash33(vec3(cell, floor(float(i) * 3 + beatPhase * 10)));
-        p += (rnd.xy - 0.5) * step(fract(beat), rnd.z) * amp;
-        amp *= 0.75;
+    if (slider_ca_glitch > 0.0) {
+        vec2 p = uv;
+        float amp = 1;
+        repeat(i, 5) {
+            vec2 cell = floor(p / vec2(0.2, .05) / amp);
+            vec3 rnd = hash33(vec3(cell, floor(float(i) * 3 + beatPhase * 10)));
+            p += (rnd.xy - 0.5) * step(fract(beat), rnd.z) * amp;
+            amp *= 0.75;
+        }
+        direction += slider_ca_glitch * kick * (p - uv) ;
     }
-    direction += slider_ca_glitch * saturate(cos(beatTau)) * (p - uv) ;
 
-    // 横方向
-    direction += slider_ca_xshift * saturate(cos(beatTau)) * vec2(1, 0) * (fbm(vec2(uv.y * 1000, 10 * beatPhase)) - 0.5) * step(0.5, hash12(vec2(floor(uv.y / 400), beatPhase)));
+    // X Shift
+    if (slider_ca_xshift > 0.0) {
+        direction += slider_ca_xshift * kick * vec2(1, 0) *
+            (fbm(vec2(uv.y * 1000, 10 * beatPhase)) - 0.5) *
+            step(0.5, hash12(vec2(floor(uv.y / 400), beatPhase)));
+    }
 
     uv += direction;
     vec3 col = chromaticAberration(post_layer2_bloom_composite, uv, direction);

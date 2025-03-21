@@ -7,6 +7,7 @@ void main() {
 
     vec2 uv0 = gl_FragCoord.xy / resolution.xy;
 
+    vec4 col_prev = texture(composite, uv0);
     vec4 col_2d = texture(scene2d, uv0);
     vec4 col_3d = texture(scene3d, uv0);
 
@@ -15,6 +16,8 @@ void main() {
     if (int(buttons[20].w) % 2 == 1) {
         col = texture(transcendental_cube, uv0).rgb;
     }
+
+    col = mix(col, col_prev.rgb, slider_motion_blur);
 
     outColor = vec4(col, 1);
 }

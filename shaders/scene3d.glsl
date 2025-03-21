@@ -35,7 +35,7 @@ vec4 map(vec3 pos) {
     p -= of;
     for (int i = 0; i < 3; i++) {
         p = abs(p + of) - of;
-        U(m, sdBox(p, vec3(0.4, 0.1, 0.1)), VOL, saturate(cos(beatTau)), 0.4);
+        U(m, sdBox(p, vec3(0.4, 0.1, 0.1)), VOL, kick, 0.4);
         rot(p.xz, TAU * 0.1 + cos(pos.z / 4));
         if (mod(beat, 2) < 1) rot(p.xy, TAU * 0.1 * beatPhase);
     }
@@ -77,8 +77,6 @@ vec3 render(vec3 ro, vec3 rd) {
 
 void main() {
     vec2 uv0 = gl_FragCoord.xy / resolution.xy;
-    vec4 prevColor = texture(scene3d, uv0);
-
     vec2 uv = (2. * gl_FragCoord.xy - resolution.xy) / resolution.x;
 
     initBeat();
@@ -94,9 +92,6 @@ void main() {
     // rot(rd.xz, beatTau / 8);
     // rot(rd.xy, beatTau / 8);
     vec3 col = render(ro, rd);
-
-    // motion blur
-    col = mix(col, prevColor.rgb, slider_motion_blur);
 
     outColor = vec4(col, 1);
 }

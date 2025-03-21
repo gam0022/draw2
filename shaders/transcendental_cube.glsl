@@ -145,7 +145,7 @@ vec4 map(vec3 pos, bool isFull) {
     // hue = fract(beatPhase * .1 + pos.z) + 1.;
 
     // スライダー
-    _IFS_Offset = vec4(2. * sliders[5], 2. * sliders[6], 0.69, 1.);
+    _IFS_Offset = vec4(2. * slider_tscube_pram_x, 2. * slider_tscube_pram_y, 0.69, 1.);
 
     bool emi2 = false;
     // emi2 = true;
@@ -167,7 +167,7 @@ vec4 map(vec3 pos, bool isFull) {
     }
 
     // 減衰
-    float atten = 1 - sliders[7];
+    float atten = 1 - slider_tscube_silence;
     _IFS_Offset *= atten;
     _IFS_Iteration = mix(1, _IFS_Iteration, atten);
 

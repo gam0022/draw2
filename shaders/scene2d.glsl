@@ -220,7 +220,7 @@ void main() {
 
     // col += 1.3 * text_cell(uv);
     // col += 2 * diamond(uv);
-    col += logo(uv);
+    // col += logo(uv);
     // col += print_text(uv0);
 
     col += 1.4 * print_draw_logo(uv);

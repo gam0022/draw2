@@ -7,10 +7,6 @@
 #define gVignetteRoundness 1.
 
 #define gTonemapExposure 1
-#define gFlash slider_flash
-#define gFlashSpeed 30
-
-#define gInvertRate 0.
 
 float vignette(vec2 uv) {
     vec2 d = abs(uv - 0.5) * gVignetteIntensity;
@@ -20,7 +16,7 @@ float vignette(vec2 uv) {
 }
 
 vec3 invert(vec3 c, vec2 uv) {
-    if (hash12(vec2(floor(uv.y * 3202.0), beat)) < gInvertRate) {
+    if (hash12(vec2(floor(uv.y * 3202.0), beat)) < slider_ps_invert) {
         return vec3(1.0) - c;
     } else {
         return c;
@@ -28,7 +24,7 @@ vec3 invert(vec3 c, vec2 uv) {
 }
 
 vec3 flash(vec3 col) {
-    col = mix(col, vec3(1.0), gFlash * saturate(cos(time * PI * .5 * gFlashSpeed)));
+    col = mix(col, vec3(1.0), slider_flash * saturate(cos(time * PI * .5 * 30)));
 
     if (slider_flash == 1.0) {
         col = vec3(1.0);
