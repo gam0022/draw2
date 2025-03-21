@@ -27,6 +27,7 @@ int mode = 0;
 #define OPENING 1
 #define WALL 2
 #define WALL_SHADER 3
+#define WALL_WARNING 4
 
 // Timeline
 float prevEndTime = 0., t = 0.;
@@ -150,10 +151,10 @@ vec4 map(vec3 pos, bool isFull) {
     // emi2 = true;
 
     // Warning
-    int wall_id = int(button_tscube_wall.w) % 6;
-    if (mode == WALL && wall_id == 2) {
+
+    if (mode == WALL_WARNING) {
         hue = 0.0;
-        // _IFS_Iteration = phase(tri(beat / 16.) + 3);
+        _IFS_Iteration = 3 + phase(tri((beat - 4) / 16.));
         emi2 = true;
         _IFS_Rot = vec4(.3 + .1 * sin(beatPhase * TAU / 8.), .9 + .1 * sin(beatPhase * TAU / 8.), .4, 0.);
         _IFS_Offset = vec4(1.4, 0.66, 1.2, 1.);
@@ -244,27 +245,21 @@ vec4 map(vec3 pos, bool isFull) {
                 emi = step(1., mod(id, 2.));
             }
         } else if (mode == WALL) {
+            int wall_id = int(button_tscube_wall.w) % 5;
+
             if (wall_id == 0) {
             } else if (wall_id == 1) {
                 emi = mix(emi, step(.5, hash12(floor(pos.yz) + 123.23 * floor(beat * 2.))),
                           saturate(beat - pos.y));
             } else if (wall_id == 2) {
-                hue = 0.;
-                float fade1 = smoothstep(0., 4., beat);
-                // float fade2 = smoothstep(200., 202., beat);
-                float pw = mix(10., 0.6, fade1);
-                // pw = mix(pw, 20., fade2);
-                emi = pow(warning(pos.zy / 2.), pw) * mix(1., step(0., sin(t * 15. * TAU)), fade1);
-                emi = step(0.5, emi) * emi * 1.05;
-            } else if (wall_id == 3) {
                 emi = mix(0, pow(hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)), 4.),
                           smoothstep(0, 2, beat));
                 hue = 3.65;
-            } else if (wall_id == 4) {
+            } else if (wall_id == 3) {
                 emi = pow(hash12(floor(pos.yz) + 123.23 * floor(beat * 2.)), 4.);
                 hue = mix(3.65, hash12(floor(pos.yz) + 123.23 * floor(beat * 8.)),
                           smoothstep(0, 4, beat));
-            } else if (wall_id == 5) {
+            } else if (wall_id == 4) {
                 float fade1 = smoothstep(0., 2., beat);
                 float fade2 = smoothstep(2., 4., beat);
 
@@ -285,6 +280,14 @@ vec4 map(vec3 pos, bool isFull) {
             vec4 tex = texture(scene2d, fract(uv));
             emi = dot(vec3(0.5), tex.rgb) * smoothstep(1, 3, beat);
             hue = hash13(tex.rgb) * 0.6;
+        } else if (mode == WALL_WARNING) {
+            hue = 0.;
+            float fade1 = smoothstep(0., 4., beat);
+            // float fade2 = smoothstep(200., 202., beat);
+            float pw = mix(10., 0.6, fade1);
+            // pw = mix(pw, 20., fade2);
+            emi = pow(warning(pos.zy / 2.), pw) * mix(1., step(0., sin(t * 15. * TAU)), fade1);
+            emi = step(0.5, emi) * emi * 1.05;
         }
     }
 
@@ -371,6 +374,13 @@ void main() {
         mode = WALL_SHADER;
     }
 
+    // WALL_WARNING
+    float time_wall_warning = button_tscube_wall_warning.y;
+    if (time_wall_warning < time_) {
+        time_ = time_wall_warning;
+        mode = WALL_WARNING;
+    }
+
     // beat関連
     beat = time_ * bpm / 60.0;
     beatTau = beat * TAU;
@@ -436,7 +446,7 @@ void main() {
             target = vec3(0);
             fov = 100. - t;
         }
-    } else if (mode == WALL || mode == WALL_SHADER) {
+    } else if (mode == WALL || mode == WALL_SHADER || mode == WALL_WARNING) {
         if (beat < 4) {
             ro = vec3(-5., 1., 18.);
             target = vec3(5.0, -1., 16.);

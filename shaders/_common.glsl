@@ -11,9 +11,11 @@ out vec4 outColor;
 
 // buttons
 #define button_tscube_scene buttons[20]
-#define button_tscube_wall buttons[21]
-#define button_tscube_wall_shader buttons[22]
-#define button_tscube_camera buttons[24]
+#define button_tscube_camera buttons[21]
+
+#define button_tscube_wall buttons[24]
+#define button_tscube_wall_shader buttons[25]
+#define button_tscube_wall_warning buttons[26]
 
 
 uniform sampler2D scene2d;
