@@ -7,7 +7,7 @@ float gaussian(float x) {
     return exp(-(x * x) / (2.0 * sigma * sigma));
 }
 
-vec3 getBloom(vec2 uv, float threshold) {
+vec3 getBloom(vec2 uv) {
     vec3 col = vec3(0);
     float total = 0.0;
     const int MAX_BLUR_SIZE = 8;
@@ -28,8 +28,7 @@ vec3 getBloom(vec2 uv, float threshold) {
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
-    float threshold = 1.1;
-    vec3 col = getBloom(uv, threshold);
+    vec3 col = getBloom(uv);
 
     outColor = vec4(col, 1);
 }
