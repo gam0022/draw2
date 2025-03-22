@@ -178,7 +178,7 @@ void main() {
     }
 
     uv += direction;
-    vec3 col = chromaticAberration(post_layer2_bloom_composite, uv, direction);
+    vec3 col = chromaticAberration(post_layer2_bloom_final, uv, direction);
 
     outColor = vec4(col, 1);
 }

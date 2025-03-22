@@ -38,8 +38,9 @@ uniform sampler2D scene3d;
 uniform sampler2D transcendental_cube;
 uniform sampler2D composite;
 uniform sampler2D post_layer1;
+uniform sampler2D post_layer2_bloom_prefilter;
 uniform sampler2D post_layer2_bloom_blur;
-uniform sampler2D post_layer2_bloom_composite;
+uniform sampler2D post_layer2_bloom_final;
 uniform sampler2D post_layer3_chromatic_aberration;
 uniform sampler2D post_layer4_final;
 

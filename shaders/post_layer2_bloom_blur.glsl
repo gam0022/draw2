@@ -2,11 +2,6 @@
 
 #pragma include "shaders/_common.glsl"
 
-float getLuma(vec3 color) {
-    const vec3 lumaWeights = vec3(0.299, 0.587, 0.114);
-    return dot(color, lumaWeights);
-}
-
 float gaussian(float x) {
     const float sigma = 4.0;
     return exp(-(x * x) / (2.0 * sigma * sigma));
@@ -22,9 +17,8 @@ vec3 getBloom(vec2 uv, float threshold) {
             vec2 offset = vec2(x, y);
             offset *= rangefactor;
             float weight = gaussian(length(offset));
-            vec3 samp = texture(composite, uv + offset / resolution.xy).rgb;
-            float luma = getLuma(samp);
-            col += step(threshold, luma) * samp * weight;
+            vec3 samp = texture(post_layer2_bloom_prefilter, uv + offset / resolution.xy).rgb;
+            col += samp * weight;
             total += weight;
         }
     }

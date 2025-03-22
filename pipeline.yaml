@@ -26,14 +26,20 @@ stages:
     wrap_mode: repeat
     float: true
 
+  - fs: "shaders/post_layer2_bloom_prefilter.glsl"
+    resolution: [960, 540]
+    target: "post_layer2_bloom_prefilter"
+    wrap_mode: repeat
+    float: true
+
   - fs: "shaders/post_layer2_bloom_blur.glsl"
-    resolution: [640, 360]
+    resolution: [480, 270]
     target: "post_layer2_bloom_blur"
     wrap_mode: repeat
     float: true
 
-  - fs: "shaders/post_layer2_bloom_composite.glsl"
-    target: "post_layer2_bloom_composite"
+  - fs: "shaders/post_layer2_bloom_final.glsl"
+    target: "post_layer2_bloom_final"
     wrap_mode: repeat
     float: true
 

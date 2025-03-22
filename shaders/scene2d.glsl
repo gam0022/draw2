@@ -212,11 +212,11 @@ void main() {
 
     float id = mod(beat / 1, 2);
 
-    col += 1.4 * print_draw_logo(uv);
+    col += 1.5 * print_draw_logo(uv);
     // col += 1.5 * diamond(uv);
-    // col += 1.3 * text_cell(uv);
+    // col += 2 * text_cell(uv);
     // col += logo(uv);
-    // col += print_text(uv0);
+    // col += 1.5 * print_text(uv0);
     // if (mod(beat, 2) < 1) col = 1 - col;
 
     outColor = vec4(col, 1);
