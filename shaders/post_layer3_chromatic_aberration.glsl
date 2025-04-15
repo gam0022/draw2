@@ -101,11 +101,11 @@ void ManhattanVoronoi2D(vec2 p, inout float d1, inout float d2, inout vec2 idx) 
 }
 
 // https://www.shadertoy.com/view/4tlyD8
-vec3 chromaticAberration(sampler2D tex, vec2 uv, vec2 direction) {
+vec3 chromaticAberration(sampler2D tex, vec2 uv, vec2 velocity) {
     int sampleCount = 20;
     float blur = 0.3;
 
-    vec2 velocity = direction * blur;
+    velocity *= blur;
     float inverseSampleCount = 1.0 / float(sampleCount);
 
     mat3x2 increments =
@@ -131,19 +131,19 @@ void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
     initBeat();
-    vec2 direction = vec2(0.0);
+    vec2 velocity = vec2(0.0);
 
     // Lens Distortion
     if (slider_ca_lens > 0.0) {
         vec2 diff = uv - 0.5;
         uv = diff * mix(1.0, 0.8, slider_ca_lens) + 0.5;
-        direction += slider_ca_lens * pow(length(diff), 10) * diff * 100;
+        velocity += slider_ca_lens * pow(length(diff), 10) * diff * 100;
     }
 
     // Cyclic Noise
     if (slider_ca_cyclic > 0.0) {
         float cnoise = cyclicNoise(vec3(uv * 3., beat)) - 0.5;
-        direction += slider_ca_cyclic * vec2(cos(cnoise * TAU), sin(cnoise * TAU)) * cnoise;
+        velocity += slider_ca_cyclic * vec2(cos(cnoise * TAU), sin(cnoise * TAU)) * cnoise;
     }
 
     // Voronoi
@@ -153,7 +153,7 @@ void main() {
         ManhattanVoronoi2D(vec2(uv * 2.0 + beatPhase + hash21(floor(beat))), d1, d2, idx);
         vec2 velo = hash22(idx + vec2(100.0)) - 0.5;
         // rot(uv, velo.x)
-        direction += slider_ca_voronoi * velo;
+        velocity += slider_ca_voronoi * velo;
     }
 
     // Glitch
@@ -167,18 +167,18 @@ void main() {
             p += (rnd.xy - 0.5) * step(fract(beat), rnd.z) * amp;
             amp *= 0.75;
         }
-        direction += slider_ca_glitch * kick * (p - uv) ;
+        velocity += slider_ca_glitch * kick * (p - uv) ;
     }
 
     // X Shift
     if (slider_ca_xshift > 0.0) {
-        direction += slider_ca_xshift * kick * vec2(1, 0) *
+        velocity += slider_ca_xshift * kick * vec2(1, 0) *
             (fbm(vec2(uv.y * 1000, 10 * beatPhase)) - 0.5) *
             step(0.5, hash12(vec2(floor(uv.y / 400), beatPhase)));
     }
 
-    uv += direction;
-    vec3 col = chromaticAberration(post_layer2_bloom_final, uv, direction);
+    uv += velocity;
+    vec3 col = chromaticAberration(post_layer2_bloom_final, uv, velocity);
 
     outColor = vec4(col, 1);
 }
